@@ -3,12 +3,16 @@ from scipy.special import digamma, gamma
 import math
 from utils.dirichlet import pdf as dir_pdf, sample as dir_sample
 from scipy.sparse import coo_matrix
+import time
+
+EM_MAX_ITER = 10
+VAR_MAX_ITER = 10
 
 class LDA_VB:
 	def __init__(self, K, alpha):
 		self._K = K # Number of topics
 		self._alpha = alpha # Dirichlet parameter: K
-		self._tol = 10
+		self._tol = 1
 		self._old_lower_bound = 0
 
 	# Estimate model parameters with the EM algorithm.	
@@ -47,40 +51,40 @@ class LDA_VB:
 
 	# EM algorithm, with paramaters initialized	
 	def _em(self):
-		while True:
+		for i in range(EM_MAX_ITER):
 			# E step
-			print "E"
+			print "E%d" % i
 			for d in range(self._D):
 				self._mean_fields(d)
 			# M step
-			print "M"
+			print "M%d" %i
 			self._maximization()
+
 			# Check convergence
-			lower_bound = self._lower_bound()
-			if math.fabs(lower_bound - self._old_lower_bound) < self._tol:
-				break
-			self._old_lower_bound = lower_bound
-			print "Lower bound: %f" % self._old_lower_bound
+			# lower_bound = self._lower_bound()
+			# if math.fabs(lower_bound - self._old_lower_bound) < self._tol:
+			# 	break
+			# self._old_lower_bound = lower_bound
+			# print "Lower bound: %f" % self._old_lower_bound
 
 	# Mean-fields algorithm
 	def _mean_fields(self, d):
-		while True:
+		# print 'Mean field of document number %d' % d
+		for i in range(VAR_MAX_ITER):
 			N_d = self._W[d].shape[0]
 			# Update gamma
 			self._gamma[d] = self._alpha + np.sum(self._phi[d], axis = 0) # K
 			
 			# Update phi
-			# print self._beta.T[self._W[d], :].shape
 			self._phi[d] = self._beta.T[self._W[d], :] * np.exp(digamma(self._gamma[d])) # NxK
-			# print self._phi[d].shape
 			self._phi[d] /= np.sum(self._phi[d], axis = 1).reshape(N_d, 1)
 
 			# Check convergence
-			lower_bound = self._lower_bound()
-			if math.fabs(lower_bound - self._old_lower_bound) < self._tol:
-				break
-			self._old_lower_bound  = lower_bound
-			print "Lower bound: %f" % self._old_lower_bound
+			# lower_bound = self._lower_bound()
+			# if math.fabs(lower_bound - self._old_lower_bound) < self._tol:
+			# 	break
+			# self._old_lower_bound  = lower_bound
+			# print "Lower bound: %f" % self._old_lower_bound
 
 
 	# Maximization
@@ -100,6 +104,8 @@ class LDA_VB:
 
 	# Calculate lower bound
 	def _lower_bound(self):
+		print 'Compute lower bound'
+		t0 = time.time()
 		result = 0
 		for d in range(self._D):
 			# Eq log(P(theta|alpha))
@@ -118,6 +124,7 @@ class LDA_VB:
 			# SUMn Eq log(q(Zn))
 			E = np.sum(self._phi[d] * np.log(self._phi[d]))
 			result += A + B + C - D - E
+		print time.time() - t0
 		return result
 
 	# Get parameters for this estimator.
