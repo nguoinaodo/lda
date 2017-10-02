@@ -1,5 +1,0 @@
-f = open('../dataset/1.txt', 'r')
-print (f.readline())
-print (f.readline().lower())
-print (f.readline().lower())
-print (f.readline().lower())
