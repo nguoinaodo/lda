@@ -20,5 +20,3 @@ for l in lines:
 			d.append(w)
 	# Add doc to corpus
 	documents.append(np.array(d))
-
-
