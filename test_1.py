@@ -2,21 +2,22 @@ import numpy as np
 from model.lda import LDA_VB
 
 # Data
-from preprocessing.readdata import documents as W
+from preprocessing.readdata import documents as W, corpus
 from preprocessing.dictionary import dictionary as dic, \
 		inverse_dictionary as inv_dic
 
 # Init 
 K = 100 # number of topics
 alpha = np.array([1] * K) # dirichlet parameter
-V = len(dic) # number of terms
-print V
+V = corpus.num_terms # number of terms
+print "Number of terms: %d" %V
+print "Number of documents: %d" %corpus.num_docs
 
 # Model
-lda = LDA_VB(K, alpha)
+lda = LDA_VB(K, V)
 
 # Fitting
-lda.fit(W, V)
+lda.fit(corpus)
 
 # Print top words
 top_idxs = lda.get_top_words_indexes()
