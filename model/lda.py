@@ -131,8 +131,8 @@ class LDA_VB:
 	def get_params(self):
 		return self._alpha, self._beta, self._phi, self._gamma
 
-	# Predict the labels for the data samples in X using trained model.
-	def predict(self):
+	# Infer new corpus
+	def infer(self):
 		pass
 
 	# Get top words of each topics
