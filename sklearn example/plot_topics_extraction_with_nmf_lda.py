@@ -59,6 +59,7 @@ dataset = fetch_20newsgroups(shuffle=True, random_state=1,
                              remove=('headers', 'footers', 'quotes'))
 data_samples = dataset.data[:n_samples]
 print ("data sample: ")
+print (data_samples[1:10])
 print("done in %0.3fs." % (time() - t0))
 
 # # Use tf-idf features for NMF.
