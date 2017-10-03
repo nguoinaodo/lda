@@ -7,7 +7,7 @@ from scipy.sparse import coo_matrix
 class LDA_VB:
 	def __init__(self, K, alpha):
 		self._K = K # Number of topics
-		self._alpha = alpha # Dirichlet parameter: K
+		self._alpha = alpha # Dirichlet parameter: double
 		self._tol = 10
 		self._old_lower_bound = 0
 
@@ -70,9 +70,7 @@ class LDA_VB:
 			self._gamma[d] = self._alpha + np.sum(self._phi[d], axis = 0) # K
 			
 			# Update phi
-			# print self._beta.T[self._W[d], :].shape
 			self._phi[d] = self._beta.T[self._W[d], :] * np.exp(digamma(self._gamma[d])) # NxK
-			# print self._phi[d].shape
 			self._phi[d] /= np.sum(self._phi[d], axis = 1).reshape(N_d, 1)
 
 			# Check convergence
@@ -102,12 +100,13 @@ class LDA_VB:
 	def _lower_bound(self):
 		result = 0
 		for d in range(self._D):
+			dig = digamma(self._gamma[d])
+			digsum = digamma(np.sum(self._gamma[d]))
 			# Eq log(P(theta|alpha))
-			A1 = (self._alpha - 1).dot(digamma(self._gamma[d]) - digamma(np.sum(self._gamma[d]))) # 1xK . Kx1 = 1
-			A2 = np.log(np.sum(self._alpha)) - np.sum(np.log(self._alpha))
-			A = A1 + A2
+			A = (self._alpha - 1) * (dig - digsum) # A = 0
+
 			# SUMn Eq log(P(Zn|theta))
-			B = np.sum(self._phi[d].dot(digamma(self._gamma[d]) - digamma(np.sum(self._gamma[d]))))
+			B = np.sum(self._phi[d].dot(dig - digsum))
 			# SUMn Eq log(P(Wn|Zn, beta))
 			C1 = (self._beta[:, self._W[d]]).T # NxK
 			C = np.sum(self._phi[d] * C1)
