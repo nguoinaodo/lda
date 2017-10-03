@@ -145,18 +145,15 @@ class LDA_VB:
 		likelihood = np.log(gamma(self.alpha * self.num_topics)) \
 				- self.num_topics * np.log(gamma(self.alpha)) \
 				- np.log(gamma(var_gamma_sum))
-		print 'Likelihood1: %f' %likelihood
 		for k in range(self.num_topics):
 			likelihood += (self.alpha - 1) * (dig[k] - digsum) \
 					+ np.log(gamma(var_gamma[k])) \
 					- (var_gamma[k] - 1) * (dig[k] - digsum)
-			print 'Likelihood2: %f' %likelihood
 			for n in range(doc['length']):
 				if phi[n][k] > 0:
 					likelihood += doc['counts'][n] \
 							* (phi[n][k] * ((dig[k] - digsum) - np.log(phi[n][k]) \
 									+ self.log_beta[k][doc['words'][n]]))	
-					print 'Likelihood3: %f' %likelihood		
 		return likelihood
 
 
