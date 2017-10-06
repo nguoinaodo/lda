@@ -5,14 +5,14 @@ from utils.dirichlet import pdf as dir_pdf, sample as dir_sample
 from scipy.sparse import coo_matrix
 import time
 
-EM_MAX_ITER = 10
-VAR_MAX_ITER = 10
+EM_MAX_ITER = 3
+VAR_MAX_ITER = 3
 
 class LDA_VB:
 	def __init__(self, K, alpha):
 		self._K = K # Number of topics
-		self._alpha = alpha # Dirichlet parameter: K
-		self._tol = 1
+		self._alpha = alpha # Dirichlet parameter: double
+		self._tol = 10
 		self._old_lower_bound = 0
 
 	# Estimate model parameters with the EM algorithm.	
@@ -30,7 +30,6 @@ class LDA_VB:
 		# Multinomial parameter beta: KxV
 		self._beta = np.random.rand(self._K, self._V)
 		self._beta /= np.sum(self._beta, axis = 1).reshape(self._K, 1)
-
 		# Variational parameter phi: DxNdxK
 		self._phi = []
 		for d in range(self._D):
@@ -55,17 +54,18 @@ class LDA_VB:
 			# E step
 			print "E%d" % i
 			for d in range(self._D):
+				# print "Ed%d" % d
 				self._mean_fields(d)
 			# M step
 			print "M%d" %i
 			self._maximization()
 
 			# Check convergence
-			# lower_bound = self._lower_bound()
-			# if math.fabs(lower_bound - self._old_lower_bound) < self._tol:
-			# 	break
-			# self._old_lower_bound = lower_bound
-			# print "Lower bound: %f" % self._old_lower_bound
+			lower_bound = self._lower_bound()
+			if math.fabs(lower_bound - self._old_lower_bound) < self._tol:
+				break
+			self._old_lower_bound = lower_bound
+			print "Lower bound: %f" % self._old_lower_bound
 
 	# Mean-fields algorithm
 	def _mean_fields(self, d):
@@ -80,11 +80,12 @@ class LDA_VB:
 			self._phi[d] /= np.sum(self._phi[d], axis = 1).reshape(N_d, 1)
 
 			# Check convergence
-			# lower_bound = self._lower_bound()
-			# if math.fabs(lower_bound - self._old_lower_bound) < self._tol:
-			# 	break
-			# self._old_lower_bound  = lower_bound
-			# print "Lower bound: %f" % self._old_lower_bound
+			lower_bound = self._lower_bound()
+
+			if math.fabs(lower_bound - self._old_lower_bound) < self._tol:
+				break
+			self._old_lower_bound  = lower_bound
+			print "Lower bound var%d: %f" % (i, self._old_lower_bound)
 
 
 	# Maximization
@@ -104,27 +105,33 @@ class LDA_VB:
 
 	# Calculate lower bound
 	def _lower_bound(self):
-		print 'Compute lower bound'
-		t0 = time.time()
+		# print 'Compute lower bound'
 		result = 0
+		t0 = time.time()
 		for d in range(self._D):
+			# print "Document number %d" % d
+			N_d = len(self._W[d])
+			dig = digamma(self._gamma[d])
+			digsum = digamma(np.sum(self._gamma[d]))
 			# Eq log(P(theta|alpha))
-			A1 = (self._alpha - 1).dot(digamma(self._gamma[d]) - digamma(np.sum(self._gamma[d]))) # 1xK . Kx1 = 1
-			A2 = np.log(np.sum(self._alpha)) - np.sum(np.log(self._alpha))
-			A = A1 + A2
+			A = np.sum((self._alpha - 1) * (dig - digsum)) # A = 0
+			# A=0
 			# SUMn Eq log(P(Zn|theta))
-			B = np.sum(self._phi[d].dot(digamma(self._gamma[d]) - digamma(np.sum(self._gamma[d]))))
+			B = np.sum(self._phi[d].dot(dig - digsum))
 			# SUMn Eq log(P(Wn|Zn, beta))
-			C1 = (self._beta[:, self._W[d]]).T # NxK
+			C1 = np.log((self._beta[:, self._W[d]]).T) # NxK
 			C = np.sum(self._phi[d] * C1)
 			# Eq log(q(theta|gamma))
-			D1 = (self._gamma[d] - 1).dot(digamma(self._gamma[d]) - digamma(np.sum(self._gamma[d]))) # 1xK . Kx1 = 1
-			D2 = np.log(np.sum(self._gamma[d])) - np.sum(np.log(self._gamma[d]))
+			D1 = (self._gamma[d] - 1).dot(dig - digsum) # 1xK . Kx1 = 1
+			D2 = math.lgamma(np.sum(self._gamma[d]))
+			for k in range(self._K):
+				D2 -= math.lgamma(self._gamma[d][k])
 			D = D1 + D2
 			# SUMn Eq log(q(Zn))
 			E = np.sum(self._phi[d] * np.log(self._phi[d]))
 			result += A + B + C - D - E
-		print time.time() - t0
+		# print time.time() - t0
+		
 		return result
 
 	# Get parameters for this estimator.

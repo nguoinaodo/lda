@@ -8,7 +8,7 @@ from preprocessing.dictionary import dictionary as dic, \
 
 # Init 
 K = 100 # number of topics
-alpha = np.array([1] * K) # dirichlet parameter
+alpha = 1 # dirichlet parameter
 V = len(dic) # number of terms
 print 'Number of terms: %d' % V
 print 'Number of documents: %d' % len(W)
