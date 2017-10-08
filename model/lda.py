@@ -156,4 +156,3 @@ class LDA_VB:
 K = 10
 alpha = np.array([1]*10)
 lda = LDA_VB(10, alpha)
-# b, p, g = lda._init_params()
