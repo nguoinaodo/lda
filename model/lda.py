@@ -115,7 +115,7 @@ class LDA_VB:
 			digsum = digamma(np.sum(self._gamma[d]))
 			# Eq log(P(theta|alpha))
 			A = np.sum((self._alpha - 1) * (dig - digsum)) # A = 0
-			# A=0
+
 			# SUMn Eq log(P(Zn|theta))
 			B = np.sum(self._phi[d].dot(dig - digsum))
 			# SUMn Eq log(P(Wn|Zn, beta))
