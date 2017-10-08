@@ -5,15 +5,15 @@ from utils.dirichlet import pdf as dir_pdf, sample as dir_sample
 from scipy.sparse import coo_matrix
 import time
 
-EM_MAX_ITER = 3
-VAR_MAX_ITER = 3
+EM_MAX_ITER = 100
+VAR_MAX_ITER = 20
 
 class LDA_VB:
 	def __init__(self, K, alpha):
 		self._K = K # Number of topics
 		self._alpha = alpha # Dirichlet parameter: double
-		self._tol = 10
-		self._old_lower_bound = 0
+		self._tol = 1e-4
+		self._old_lower_bound = -999999999999
 
 	# Estimate model parameters with the EM algorithm.	
 	def fit(self, W, V):
@@ -51,8 +51,10 @@ class LDA_VB:
 	# EM algorithm, with paramaters initialized	
 	def _em(self):
 		for i in range(EM_MAX_ITER):
+			print "EM iterator number %d" % i
 			# E step
 			print "E%d" % i
+			start = time.time()
 			for d in range(self._D):
 				# print "Ed%d" % d
 				self._mean_fields(d)
@@ -65,11 +67,13 @@ class LDA_VB:
 			if math.fabs(lower_bound - self._old_lower_bound) < self._tol:
 				break
 			self._old_lower_bound = lower_bound
-			print "Lower bound: %f" % self._old_lower_bound
+			print "EM time %f" % (time.time() - start)
+ 			print "EM Lower bound: %f" % self._old_lower_bound
 
 	# Mean-fields algorithm
 	def _mean_fields(self, d):
 		# print 'Mean field of document number %d' % d
+		old_gamma_d = np.ones(self._K)
 		for i in range(VAR_MAX_ITER):
 			N_d = self._W[d].shape[0]
 			# Update gamma
@@ -80,12 +84,10 @@ class LDA_VB:
 			self._phi[d] /= np.sum(self._phi[d], axis = 1).reshape(N_d, 1)
 
 			# Check convergence
-			lower_bound = self._lower_bound()
-
-			if math.fabs(lower_bound - self._old_lower_bound) < self._tol:
+			converged = np.average(np.fabs(old_gamma_d - self._gamma[d]))
+			if converged < self._tol: 
 				break
-			self._old_lower_bound  = lower_bound
-			print "Lower bound var%d: %f" % (i, self._old_lower_bound)
+			old_gamma_d = self._gamma[d]
 
 
 	# Maximization
@@ -105,7 +107,7 @@ class LDA_VB:
 
 	# Calculate lower bound
 	def _lower_bound(self):
-		# print 'Compute lower bound'
+		print 'Compute lower bound'
 		result = 0
 		t0 = time.time()
 		for d in range(self._D):
@@ -130,7 +132,7 @@ class LDA_VB:
 			# SUMn Eq log(q(Zn))
 			E = np.sum(self._phi[d] * np.log(self._phi[d]))
 			result += A + B + C - D - E
-		# print time.time() - t0
+		print "Time: %f" % (time.time() - t0)
 		
 		return result
 
@@ -151,8 +153,3 @@ class LDA_VB:
 			top_idx = desc_idx[:20]
 			top_idxs.append(top_idx)
 		return np.array(top_idxs)
-
-# Test
-K = 10
-alpha = np.array([1]*10)
-lda = LDA_VB(10, alpha)
