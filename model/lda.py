@@ -6,7 +6,7 @@ from scipy.sparse import coo_matrix
 from utils.log import logsum
 
 EM_CONVERGED = 1e-6
-EM_MAX_ITER = 100
+EM_MAX_ITER = 10
 VAR_MAX_ITER = 20
 VAR_CONVERGED = 1e-4
 
@@ -21,6 +21,10 @@ class LDA_VB:
 		self.num_terms = num_terms # Number of terms: V
 		self.alpha = 1.0 # Alpha: [1,1,..,1]: K-array
 		self.log_beta = np.zeros((num_topics, num_terms)) # Logarit of beta: KxV
+		self.EM_CONVERGED = EM_CONVERGED
+		self.EM_MAX_ITER = EM_MAX_ITER
+		self.VAR_MAX_ITER = VAR_MAX_ITER
+		self.VAR_CONVERGED = VAR_CONVERGED
 		
 	# Estimate model parameters with the EM algorithm.	
 	def fit(self, corpus):
@@ -45,30 +49,32 @@ class LDA_VB:
 		var_gamma, phi = self._init_params(corpus)
 
 		i = 0
-		old_likelihood = 0,
+		old_likelihood = 0
 		converged = 1
-		while (converged < 0 or converged > EM_CONVERGED or \
-				i <= 2) and i < EM_MAX_ITER:
+		while (converged < 0 or converged > self.EM_CONVERGED or \
+				i <= 2) and i < self.EM_MAX_ITER:
 			i += 1
 			print '*** EM iteration %d ****\n' % i
 			likelihood = 0
 			self.ss.zero_init()
 
 			# E step
+			print 'E'
 			for d in range(corpus.num_docs):
-				if d % 1000 == 0:
-					print 'Document %d\n' % d
+				print 'Document %d\n' % d
 				likelihood += self._doc_e_step(corpus.docs[d],\
 						var_gamma[d], phi)
+			print 'M'
 			self._maximization()
 			# M step
 			# Check for convergence
+			print "EM Likelihood: %f" % likelihood
 			if old_likelihood == 0:
-				converged = -1
+				converged = 1
 			else: 
 				converged = (old_likelihood - likelihood) / old_likelihood
  			if converged < 0:
-				VAR_MAX_ITER *= 2
+				self.VAR_MAX_ITER *= 2
 			old_likelihood = likelihood
 
 	# Document E step		
@@ -106,8 +112,8 @@ class LDA_VB:
 				phi[n][k] = 1. / self.num_topics
 
 		var_i = 0
-		while converged > VAR_CONVERGED and (var_i < VAR_MAX_ITER\
-				or VAR_MAX_ITER == -1):
+		while converged > self.VAR_CONVERGED and (var_i < self.VAR_MAX_ITER\
+				or self.VAR_MAX_ITER == -1):
 			var_i += 1
 			for n in range(doc['length']):
 				phi_sum = 0
@@ -122,7 +128,7 @@ class LDA_VB:
 							(phi[n][k] - old_phi[k])
 					digamma_gam[k] = digamma(var_gamma[k])		
 			likelihood = self._compute_likelihood(doc, phi, var_gamma)	
-			print 'Likelihood: %f' %likelihood	
+			# print 'Likelihood: %f' %likelihood	
 			if old_likelihood == 0:
 				converged = 1
 			else:
@@ -142,12 +148,12 @@ class LDA_VB:
 			dig[k] = digamma(var_gamma[k])
 			var_gamma_sum += var_gamma[k]
 		digsum = digamma(var_gamma_sum)
-		likelihood = np.log(gamma(self.alpha * self.num_topics)) \
-				- self.num_topics * np.log(gamma(self.alpha)) \
-				- np.log(gamma(var_gamma_sum))
+		likelihood = math.lgamma(self.alpha * self.num_topics) \
+				- self.num_topics * math.lgamma(self.alpha) \
+				- math.lgamma(var_gamma_sum)
 		for k in range(self.num_topics):
 			likelihood += (self.alpha - 1) * (dig[k] - digsum) \
-					+ np.log(gamma(var_gamma[k])) \
+					+ math.lgamma(var_gamma[k]) \
 					- (var_gamma[k] - 1) * (dig[k] - digsum)
 			for n in range(doc['length']):
 				if phi[n][k] > 0:
@@ -159,7 +165,7 @@ class LDA_VB:
 	# Maximization 
 	def _maximization(self):
 		for k in range(self.num_topics):
-			for j in range(self.num_terms):
+			for w in range(self.num_terms):
 				if self.ss.topic_word[k][w] > 0:
 					self.log_beta[k][w] = np.log(self.ss.topic_word[k][w]) \
 							- np.log(self.ss.topic_total[k])

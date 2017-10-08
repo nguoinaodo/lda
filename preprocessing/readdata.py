@@ -48,4 +48,4 @@ for l in lines:
 from dictionary import num_terms
 from model.corpus import Corpus
 
-corpus = Corpus(documents, num_terms)
+corpus = Corpus(documents[:10], num_terms)
