@@ -138,7 +138,7 @@ class LDA_VB:
 
 	# Get parameters for this estimator.
 	def get_params(self):
-		return self._alpha, self._beta, self._phi, self._gamma
+		return self._alpha, self._beta
 
 	# Infer new corpus
 	def infer(self):
