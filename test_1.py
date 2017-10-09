@@ -2,7 +2,7 @@ import numpy as np
 from model.lda import LDA_VB
 
 # Data
-from preprocessing.readdata import documents as W
+from preprocessing.read_ap import documents as W
 from preprocessing.dictionary import dictionary as dic, \
 		inverse_dictionary as inv_dic
 
@@ -21,8 +21,9 @@ lda.fit(W, V)
 
 # Print top words
 top_idxs = lda.get_top_words_indexes()
-for i in range(len(top_idxs)):
-	s = '\nTopic %d:' % i 
-	for idx in top_idxs[i]:
-		s += ' %s' % inv_dic[idx]
-	print s	
+with open('lda_result.txt', 'w') as f:
+	for i in range(len(top_idxs)):
+		s = '\nTopic %d:' % i 
+		for idx in top_idxs[i]:
+			s += ' %s' % inv_dic[idx]
+		f.write(s)
