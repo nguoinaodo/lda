@@ -2,7 +2,7 @@ import numpy as np
 from time import time
 
 # Data
-from preprocessing.readdata import documents_1 as W
+from preprocessing.read_ap import sparse_docs as W_tr
 from preprocessing.dictionary import dictionary as dic, \
 		inverse_dictionary as inv_dic, terms
 
@@ -21,7 +21,7 @@ lda = LatentDirichletAllocation(n_components=100, max_iter=20,
                                 learning_offset=50.,
                                 random_state=0)
 t0 = time()
-lda.fit(W)
+lda.fit(W_tr)
 print("done in %0.3fs." % (time() - t0))
 
 print("\nTopics in LDA model:")
