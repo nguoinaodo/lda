@@ -153,3 +153,7 @@ class LDA_VB:
 			top_idx = desc_idx[:20]
 			top_idxs.append(top_idx)
 		return np.array(top_idxs)
+
+	# Perplexity
+	def perplexity(self):
+		pass	
