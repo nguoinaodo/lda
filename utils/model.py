@@ -20,3 +20,10 @@ def load_model(LDA_VB, filename):
 	lda = LDA_VB(alpha)
 	lda.set_params(beta=beta)
 	return lda
+
+def save_stochatic_model(model, filename):
+	alpha, beta, tau0, kappa, eta = model.get_params()
+	with open(filename, 'w') as f:
+		writer = csv.writer(f, delimiter=',')
+		writer.writerow([alpha])
+		writer.writerows(beta)

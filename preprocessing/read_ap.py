@@ -12,7 +12,7 @@ test = lines[D_train:]
 # To documents
 def to_documents(lines):
 	documents = []
-	for l in train:
+	for l in lines:
 		d = [] # document vector
 		a = l.strip().split(' ')
 		N = int(a[0]) # number of unique terms
@@ -27,9 +27,9 @@ def to_documents(lines):
 		documents.append(np.array(d))
 	return documents
 
+docs = to_documents(lines)
 docs_train = to_documents(train)
 docs_test = to_documents(test)
-# docs = to_documents(lines)
 
 from dictionary import V
 # To documents: sparse matrix

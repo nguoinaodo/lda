@@ -1,6 +1,6 @@
 import numpy as np 
-from model.lda import LDA_VB
-from utils.model import save_model, load_model
+from model.lda_stochatic import StochaticLDA_VB
+from utils.model import save_stochatic_model, load_model
 
 # Data
 from preprocessing.read_ap import docs_train as W_tr, docs_test as W_test
@@ -15,16 +15,16 @@ print 'Number of terms: %d' % V
 print 'Number of documents: %d' % len(W_tr)
 
 # Model
-lda = LDA_VB(alpha)
-lda.set_params(K=K, V=V)
+lda = StochaticLDA_VB()
+lda.set_params(alpha=alpha, K=K, V=V, kappa=.5, tau0=256, eta=.5)
 
 # Fitting
-lda.fit(W_tr)
+lda.fit(W_tr, N_epoch=5)
 
 # Result
 top_idxs = lda.get_top_words_indexes()
 perplexity = lda.perplexity(W_test)
-with open('lda_result.txt', 'w') as f:
+with open('lda_stochatic_result.txt', 'w') as f:
 	s = 'Perplexity: %f' % perplexity
 	f.write(s)
 	for i in range(len(top_idxs)):
@@ -34,4 +34,4 @@ with open('lda_result.txt', 'w') as f:
 		f.write(s)
 
 # Save model
-save_model(LDA_VB, 'model.csv')
+save_stochatic_model(lda, 'model_stochatic.csv')

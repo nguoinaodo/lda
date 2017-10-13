@@ -1,11 +1,11 @@
 import numpy as np
 from scipy.special import digamma, gamma, gammaln
 import math
-import sys
 from scipy.sparse import coo_matrix
 import time
+from utils import normalize
 
-EM_MAX_ITER = 100
+EM_MAX_ITER = 50
 VAR_MAX_ITER = 20
 
 class LDA_VB:
@@ -13,7 +13,7 @@ class LDA_VB:
 		# self._K = K # Number of topics
 		self._alpha = alpha # Dirichlet parameter: double
 		# self._V = V # Vocab size
-		self._tol = 1e-4
+		self._tol = 1e-5
 		self._old_lower_bound = -999999999999
 
 	# Set parameters
@@ -39,16 +39,16 @@ class LDA_VB:
 	# Initialize parameters
 	def _init_params(self):
 		# Multinomial parameter beta: KxV
-		self._beta = np.random.rand(self._K, self._V)
-		self._beta /= np.sum(self._beta, axis = 1).reshape(self._K, 1)
+		self._beta = np.random.gamma(100, 1./100, (self._K, self._V))
+		self._beta = normalize(self._beta, axis=1)
 
 	def _init_var_params(self, W, D):
 		# Variational parameter phi: DxNdxK
 		phi = []
 		for d in range(D):
 			N_d = W[d].shape[0]
-			p_d = np.random.rand(N_d, self._K)
-			p_d = 1. * p_d / np.sum(p_d, axis = 1).reshape(N_d, 1)
+			p_d = np.random.gamma(100., 1./100, (N_d, self._K))
+			p_d = normalize(p_d, axis=1)
 			phi.append(p_d)
 		phi = np.array(phi) 
 		
@@ -64,7 +64,7 @@ class LDA_VB:
 			# E step
 			print "E%d" % i
 			start = time.time()
-			self._estimation(W, D, phi, var_gamma)
+			phi, var_gamma = self._estimation(W, D, phi, var_gamma, i)
 			# M step
 			print "M%d" %i
 			self._maximization(W, D, phi, var_gamma)
@@ -78,28 +78,71 @@ class LDA_VB:
  			print "EM Lower bound: %f" % self._old_lower_bound
 
  	# Estimation
- 	def _estimation(self, W, D, phi, var_gamma):
+ 	def _estimation(self, W, D, phi, var_gamma, eit):
  		for d in range(D):
- 			self._mean_fields(d, W, phi, var_gamma)
-
+ 			phi, var_gamma = self._mean_fields(d, W, phi, var_gamma, eit)
+ 		return phi, var_gamma
+ 			
 	# Mean-fields algorithm
-	def _mean_fields(self, d, W, phi, var_gamma):
+	def _mean_fields(self, d, W, phi, var_gamma, eit):
+		N_d = W[d].shape[0]
 		# print 'Mean field of document number %d' % d
-		old_gamma_d = np.ones(self._K)
+		# old_gamma_d = np.ones(self._K)
+		old_phi_d = 1. * np.ones((N_d, self._K)) / self._K
 		for i in range(VAR_MAX_ITER):
-			N_d = W[d].shape[0]
 			# Update gamma
 			var_gamma[d] = self._alpha + np.sum(phi[d], axis = 0) # K
-			
 			# Update phi
-			phi[d] = self._beta.T[W[d], :] * np.exp(digamma(var_gamma[d])) # NxK
-			phi[d] /= np.sum(phi[d], axis = 1).reshape(N_d, 1)
-
+			a = self._beta.T[W[d], :]
+			b = np.exp(digamma(var_gamma[d]))
+			p_d = a * b
+			# print 'sum beta: ',
+			# print np.sum(self._beta, axis=1)
+			# if eit == 6:
+			# 	print "a"
+			# 	print np.min(a)
+			# 	print np.max(a)
+			# 	print 'b'
+			# 	print np.min(b)
+			# 	print np.max(b)
+			# 	print 'p_d'
+			# 	print np.min(p_d)
+			# 	print np.max(p_d)
+			# print p_d.shape
+			# phi[d] = 1.e100 * self._beta.T[W[d], :] * np.exp(digamma(var_gamma[d]))
+			# phi[d] =  a * np.exp(digamma(var_gamma[d])) # NxK, overflow
+			# if len(np.where(p_d == 0)[0]) > 0:
+			# 	print d
+			# 	# print np.where(self._beta == 0)
+			# 	print np.min(self._beta)
+			# 	print np.min(a)
+			# 	print np.min(b)
+				# print b
+				# print np.where(phi[d] == 0)
+				# print var_gamma[d]	
+			phi[d] = normalize(p_d, axis=1)
+			# if eit == 6:
+			# 	print 'sum_phi[d]'
+			# 	print np.sum(phi[d], axis=1)
+			if len(np.where(phi[d] == 0)[0]) > 0:
+				phi[d] += 1.e-308
+				# print phi[d]
+				# print np.min(p_d)
+				# print np.max(p_d)
+				# print np.sum(p_d, axis=1).shape
+				# print np.sum(p_d, axis = 1)
+				# # print np.where(self._beta == 0)
+				# print np.min(self._beta)
+				# print np.min(a)
+				# print np.min(b)
 			# Check convergence
-			converged = np.average(np.fabs(old_gamma_d - var_gamma[d]))
+			# converged = np.average(np.fabs(old_gamma_d - var_gamma[d]))
+			converged = np.average(np.fabs(old_phi_d - phi[d]))
 			if converged < self._tol: 
 				break
-			old_gamma_d = var_gamma[d]
+			# old_gamma_d = var_gamma[d]
+			old_phi_d = phi[d]
+		return phi, var_gamma
 
 	# Maximization
 	def _maximization(self, W, D, phi, var_gamma):
@@ -114,7 +157,9 @@ class LDA_VB:
 			B = phi[d].T * A
 			self._beta += B # KxN . NxV = KxV
 		# Normalize
-		self._beta /= np.sum(self._beta, axis = 1).reshape(self._K, 1)
+		self._beta = normalize(self._beta, axis=1)
+		if len(np.where(self._beta == 0)[0]) > 0:
+			self._beta += 1.e-308
 
 	# Calculate lower bound
 	def _lower_bound(self, W, D, phi, var_gamma):
@@ -125,7 +170,8 @@ class LDA_VB:
 			dig = digamma(var_gamma[d])
 			digsum = digamma(np.sum(var_gamma[d]))
 			# Eq log(P(theta|alpha))
-			A = np.sum((self._alpha - 1) * (dig - digsum)) # A = 0
+			A1 = gammaln(self._K * self._alpha) - self._K * gammaln(self._alpha)
+			A = A1 + np.sum((self._alpha - 1) * (dig - digsum)) # A = 0
 			# SUMn Eq log(P(Zn|theta))
 			B = np.sum(phi[d].dot(dig - digsum))
 			# SUMn Eq log(P(Wn|Zn, beta))
