@@ -5,7 +5,7 @@ from scipy.sparse import coo_matrix
 import time
 from utils import normalize
 
-EM_MAX_ITER = 50
+EM_MAX_ITER = 100
 VAR_MAX_ITER = 20
 
 class LDA_VB:
@@ -13,7 +13,8 @@ class LDA_VB:
 		# self._K = K # Number of topics
 		self._alpha = alpha # Dirichlet parameter: double
 		# self._V = V # Vocab size
-		self._tol = 1e-5
+		self._tol_EM = 1e-5
+		self._tol_var = 1e-6
 		self._old_lower_bound = -999999999999
 
 	# Set parameters
@@ -71,7 +72,7 @@ class LDA_VB:
 
 			# Check convergence
 			lower_bound = self._lower_bound(W, D, phi, var_gamma)
-			if math.fabs(lower_bound - self._old_lower_bound) < self._tol:
+			if math.fabs(lower_bound - self._old_lower_bound) < self._tol_EM:
 				break
 			self._old_lower_bound = lower_bound
 			print "EM time %f" % (time.time() - start)
@@ -86,9 +87,8 @@ class LDA_VB:
 	# Mean-fields algorithm
 	def _mean_fields(self, d, W, phi, var_gamma, eit):
 		N_d = W[d].shape[0]
-		# print 'Mean field of document number %d' % d
-		# old_gamma_d = np.ones(self._K)
-		old_phi_d = 1. * np.ones((N_d, self._K)) / self._K
+		old_gamma_d = np.ones(self._K)
+		# old_phi_d = 1. * np.ones((N_d, self._K)) / self._K
 		for i in range(VAR_MAX_ITER):
 			# Update gamma
 			var_gamma[d] = self._alpha + np.sum(phi[d], axis = 0) # K
@@ -96,52 +96,17 @@ class LDA_VB:
 			a = self._beta.T[W[d], :]
 			b = np.exp(digamma(var_gamma[d]))
 			p_d = a * b
-			# print 'sum beta: ',
-			# print np.sum(self._beta, axis=1)
-			# if eit == 6:
-			# 	print "a"
-			# 	print np.min(a)
-			# 	print np.max(a)
-			# 	print 'b'
-			# 	print np.min(b)
-			# 	print np.max(b)
-			# 	print 'p_d'
-			# 	print np.min(p_d)
-			# 	print np.max(p_d)
-			# print p_d.shape
-			# phi[d] = 1.e100 * self._beta.T[W[d], :] * np.exp(digamma(var_gamma[d]))
-			# phi[d] =  a * np.exp(digamma(var_gamma[d])) # NxK, overflow
-			# if len(np.where(p_d == 0)[0]) > 0:
-			# 	print d
-			# 	# print np.where(self._beta == 0)
-			# 	print np.min(self._beta)
-			# 	print np.min(a)
-			# 	print np.min(b)
-				# print b
-				# print np.where(phi[d] == 0)
-				# print var_gamma[d]	
 			phi[d] = normalize(p_d, axis=1)
-			# if eit == 6:
-			# 	print 'sum_phi[d]'
-			# 	print np.sum(phi[d], axis=1)
-			if len(np.where(phi[d] == 0)[0]) > 0:
-				phi[d] += 1.e-308
-				# print phi[d]
-				# print np.min(p_d)
-				# print np.max(p_d)
-				# print np.sum(p_d, axis=1).shape
-				# print np.sum(p_d, axis = 1)
-				# # print np.where(self._beta == 0)
-				# print np.min(self._beta)
-				# print np.min(a)
-				# print np.min(b)
+			# if len(np.where(phi[d] == 0)[0]) > 0:
+			# 	phi[d] += 1.e-308
+			phi[d][phi[d] == 0] += 1.e-308
 			# Check convergence
-			# converged = np.average(np.fabs(old_gamma_d - var_gamma[d]))
-			converged = np.average(np.fabs(old_phi_d - phi[d]))
-			if converged < self._tol: 
+			converged = np.average(np.fabs(old_gamma_d - var_gamma[d]))
+			# converged = np.average(np.fabs(old_phi_d - phi[d]))
+			if converged < self._tol_var: 
 				break
-			# old_gamma_d = var_gamma[d]
-			old_phi_d = phi[d]
+			old_gamma_d = var_gamma[d]
+			# old_phi_d = phi[d]
 		return phi, var_gamma
 
 	# Maximization
@@ -158,8 +123,7 @@ class LDA_VB:
 			self._beta += B # KxN . NxV = KxV
 		# Normalize
 		self._beta = normalize(self._beta, axis=1)
-		if len(np.where(self._beta == 0)[0]) > 0:
-			self._beta += 1.e-308
+		self._beta[self._beta == 0] += 1.e-308
 
 	# Calculate lower bound
 	def _lower_bound(self, W, D, phi, var_gamma):
@@ -167,18 +131,17 @@ class LDA_VB:
 		result = 0
 		t0 = time.time()
 		for d in range(D):
-			dig = digamma(var_gamma[d])
-			digsum = digamma(np.sum(var_gamma[d]))
+			sub_digamma = digamma(var_gamma[d]) - digamma(np.sum(var_gamma[d]))
 			# Eq log(P(theta|alpha))
 			A1 = gammaln(self._K * self._alpha) - self._K * gammaln(self._alpha)
-			A = A1 + np.sum((self._alpha - 1) * (dig - digsum)) # A = 0
+			A = A1 + np.sum((self._alpha - 1) * sub_digamma) # A = 0
 			# SUMn Eq log(P(Zn|theta))
-			B = np.sum(phi[d].dot(dig - digsum))
+			B = np.sum(phi[d].dot(sub_digamma))
 			# SUMn Eq log(P(Wn|Zn, beta))
 			C1 = np.log((self._beta[:, W[d]]).T) # NxK
 			C = np.sum(phi[d] * C1)
 			# Eq log(q(theta|gamma))
-			D1 = (var_gamma[d] - 1).dot(dig - digsum) # 1xK . Kx1 = 1
+			D1 = (var_gamma[d] - 1).dot(sub_digamma) # 1xK . Kx1 = 1
 			D2 = gammaln(np.sum(var_gamma[d])) - np.sum(gammaln(var_gamma[d]))
 			D = D1 + D2
 			# SUMn Eq log(q(Zn))
