@@ -18,7 +18,7 @@ class LDA_VB:
 		self._old_lower_bound = -999999999999
 
 	# Set parameters
-	def set_params(self, alpha=False, beta=False, K=False, V=False):
+	def set_params(self, alpha=None, beta=None, K=None, V=None):
 		if alpha:
 			self._alpha = alpha
 		if beta:
@@ -95,11 +95,7 @@ class LDA_VB:
 			# Update phi
 			a = self._beta.T[W[d], :]
 			b = np.exp(digamma(var_gamma[d]))
-			p_d = a * b
-			phi[d] = normalize(p_d, axis=1)
-			# if len(np.where(phi[d] == 0)[0]) > 0:
-			# 	phi[d] += 1.e-308
-			phi[d][phi[d] == 0] += 1.e-308
+			phi[d] = normalize(a * b, axis=1)
 			# Check convergence
 			converged = np.average(np.fabs(old_gamma_d - var_gamma[d]))
 			# converged = np.average(np.fabs(old_phi_d - phi[d]))
@@ -123,7 +119,6 @@ class LDA_VB:
 			self._beta += B # KxN . NxV = KxV
 		# Normalize
 		self._beta = normalize(self._beta, axis=1)
-		self._beta[self._beta == 0] += 1.e-308
 
 	# Calculate lower bound
 	def _lower_bound(self, W, D, phi, var_gamma):
@@ -138,14 +133,14 @@ class LDA_VB:
 			# SUMn Eq log(P(Zn|theta))
 			B = np.sum(phi[d].dot(sub_digamma))
 			# SUMn Eq log(P(Wn|Zn, beta))
-			C1 = np.log((self._beta[:, W[d]]).T) # NxK
+			C1 = np.nan_to_num(np.log((self._beta[:, W[d]]).T)) # NxK
 			C = np.sum(phi[d] * C1)
 			# Eq log(q(theta|gamma))
 			D1 = (var_gamma[d] - 1).dot(sub_digamma) # 1xK . Kx1 = 1
 			D2 = gammaln(np.sum(var_gamma[d])) - np.sum(gammaln(var_gamma[d]))
 			D = D1 + D2
 			# SUMn Eq log(q(Zn))
-			E = np.sum(phi[d] * np.log(phi[d]))
+			E = np.sum(phi[d] * np.nan_to_num(np.log(phi[d])))
 			result += A + B + C - D - E
 		print "Time: %f" % (time.time() - t0)
 		
@@ -162,16 +157,16 @@ class LDA_VB:
 		self._estimation(W, D, phi, var_gamma)
 		return phi, var_gamma
 
-	# Perplexity
-	def perplexity(self, W):
-		D = len(W) # number of documents
-		phi, var_gamma = self._infer(W, D)
-		# Lower bound likelihood
-		lower_bound = self._lower_bound(W, D, phi, var_gamma)
-		num_words = self._count_words(W)
-		# Perplexity
-		perplexity = np.exp(-lower_bound / num_words)
-		return perplexity
+	# # Perplexity
+	# def perplexity(self, W):
+	# 	D = len(W) # number of documents
+	# 	phi, var_gamma = self._infer(W, D)
+	# 	# Lower bound likelihood
+	# 	lower_bound = self._lower_bound(W, D, phi, var_gamma)
+	# 	num_words = self._count_words(W)
+	# 	# Perplexity
+	# 	perplexity = np.exp(-lower_bound / num_words)
+	# 	return perplexity
 
 	# Document topics
 	def docs_topics(self, W):
