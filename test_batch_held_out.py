@@ -17,7 +17,7 @@ tol_EMs = [1e-4, 1e-5]
 dirname = 'test_batch_result_heldout/'
 for k in K:
 	for a in alpha:
-		for t in tol_EMs
+		for t in tol_EMs:
 			print 'Number of terms: %d' % V
 			print 'Number of train documents: %d' % len(W_tr)
 			# print 'Number of documents: %d' % len(W)
