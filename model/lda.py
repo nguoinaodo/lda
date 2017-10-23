@@ -146,7 +146,7 @@ class LDA_VB:
 		self._beta = normalize(self._beta, axis=1)
 
 	# Calculate lower bound
-	def _lower_bound(self, W, D, phi, var_gamma, log):
+	def _lower_bound(self, W, D, phi, var_gamma, log=None):
 		print 'Compute lower bound'
 		result = 0
 		t0 = time.time()
@@ -195,7 +195,7 @@ class LDA_VB:
 		perplexity = np.exp(-lower_bound / num_words)
 		return perplexity
 
-	# Predictive dítribution
+	# Predictive distribution
 	def predictive(self, W):
 		D = len(W)
 		phi, var_gamma = self._infer(W, D)
