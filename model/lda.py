@@ -194,6 +194,12 @@ class LDA_VB:
 		perplexity = np.exp(-lower_bound / num_words)
 		return perplexity
 
+	# Predictive dítribution
+	def predictive(self, W):
+		D = len(W)
+		phi, var_gamma = self._infer(W, D)
+		
+
 	# Document topics
 	def docs_topics(self, W):
 		D = len(W)
