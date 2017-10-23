@@ -108,13 +108,14 @@ class LDA_VB:
 	# Mean-fields algorithm
 	def _mean_fields(self, d, W, phi, var_gamma, eit):
 		N_d = W[d].num_words
+		W_d = W[d].to_vector()
 		old_gamma_d = np.ones(self._K)
 		# old_phi_d = 1. * np.ones((N_d, self._K)) / self._K
 		for i in range(VAR_MAX_ITER):
 			# Update gamma
 			var_gamma[d] = self._alpha + np.sum(phi[d], axis = 0) # K
 			# Update phi
-			a = self._beta.T[W[d].to_vector(), :]
+			a = self._beta.T[W_d, :]
 			b = np.exp(digamma(var_gamma[d]))
 			phi[d] = normalize(a * b, axis=1)
 			# Check convergence
