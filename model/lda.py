@@ -18,7 +18,8 @@ class LDA_VB:
 		self._old_lower_bound = -999999999999
 
 	# Set parameters
-	def set_params(self, alpha=None, beta=None, K=None, V=None, log=None):
+	def set_params(self, alpha=None, beta=None, K=None, V=None, log=None,
+			tol_EM=None):
 		if alpha:
 			self._alpha = alpha
 		if beta:
@@ -29,6 +30,8 @@ class LDA_VB:
 			self._V = V	
 		if log:
 			self._log = log
+		if tol_EM:
+			self._tol_EM = tol_EM
 
 	# Estimate model parameters with the EM algorithm.	
 	def fit(self, W):
@@ -180,16 +183,16 @@ class LDA_VB:
 		self._estimation(W, D, phi, var_gamma)
 		return phi, var_gamma
 
-	# # Perplexity
-	# def perplexity(self, W):
-	# 	D = len(W) # number of documents
-	# 	phi, var_gamma = self._infer(W, D)
-	# 	# Lower bound likelihood
-	# 	lower_bound = self._lower_bound(W, D, phi, var_gamma)
-	# 	num_words = self._count_words(W)
-	# 	# Perplexity
-	# 	perplexity = np.exp(-lower_bound / num_words)
-	# 	return perplexity
+	# Perplexity
+	def perplexity(self, W):
+		D = len(W) # number of documents
+		phi, var_gamma = self._infer(W, D)
+		# Lower bound likelihood
+		lower_bound = self._lower_bound(W, D, phi, var_gamma)
+		num_words = self._count_words(W)
+		# Perplexity
+		perplexity = np.exp(-lower_bound / num_words)
+		return perplexity
 
 	# Document topics
 	def docs_topics(self, W):
