@@ -5,7 +5,7 @@ from scipy.sparse import coo_matrix
 import time
 from utils import normalize
 
-EM_MAX_ITER = 50
+EM_MAX_ITER = 100
 VAR_MAX_ITER = 20
 
 class LDA_VB:
@@ -13,7 +13,7 @@ class LDA_VB:
 		# self._K = K # Number of topics
 		self._alpha = alpha # Dirichlet parameter: double
 		# self._V = V # Vocab size
-		self._tol_EM = 1e-4
+		self._tol_EM = 1e-5
 		self._tol_var = 1e-6
 		self._old_lower_bound = -999999999999
 

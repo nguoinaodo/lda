@@ -31,7 +31,7 @@ for k in K:
 		# Result
 		top_idxs = lda.get_top_words_indexes()
 		# perplexity = lda.perplexity(W_test)
-		with open(dirname + 'testlda_result' + str(count) + '.txt', 'w') as f:
+		with open(dirname + 'lda_result' + str(count) + '.txt', 'w') as f:
 			# s = 'Perplexity: %f' % perplexity
 			# f.write(s)
 			for i in range(len(top_idxs)):
