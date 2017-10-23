@@ -1,0 +1,610 @@
+LDA:
+Number of document: 2246
+Number of topic: 50
+Number of term: 10473
+alpha=0.010000
+tolerance_EM=0.000010
+tolerance_var=0.000001
+
+
+EM iterator number 0
+Lower bound time: 1.711797
+EM converged: 0.999996
+EM time 6.441453
+EM Lower bound: -4111530.341224
+
+EM iterator number 1
+Lower bound time: 1.738106
+EM converged: 0.000590
+EM time 6.517392
+EM Lower bound: -4109105.488561
+
+EM iterator number 2
+Lower bound time: 1.748808
+EM converged: 0.001333
+EM time 6.512216
+EM Lower bound: -4103626.438888
+
+EM iterator number 3
+Lower bound time: 1.733208
+EM converged: 0.002300
+EM time 6.403510
+EM Lower bound: -4094189.562808
+
+EM iterator number 4
+Lower bound time: 1.731292
+EM converged: 0.005493
+EM time 6.328762
+EM Lower bound: -4071699.007400
+
+EM iterator number 5
+Lower bound time: 1.746849
+EM converged: 0.012697
+EM time 6.331003
+EM Lower bound: -4019999.685737
+
+EM iterator number 6
+Lower bound time: 1.731841
+EM converged: 0.026519
+EM time 6.295347
+EM Lower bound: -3913393.144441
+
+EM iterator number 7
+Lower bound time: 1.723654
+EM converged: 0.040708
+EM time 6.311861
+EM Lower bound: -3754085.775573
+
+EM iterator number 8
+Lower bound time: 1.693339
+EM converged: 0.045029
+EM time 6.188685
+EM Lower bound: -3585042.963202
+
+EM iterator number 9
+Lower bound time: 1.646502
+EM converged: 0.037038
+EM time 6.109931
+EM Lower bound: -3452261.145238
+
+EM iterator number 10
+Lower bound time: 1.618319
+EM converged: 0.024789
+EM time 6.040618
+EM Lower bound: -3366684.562694
+
+EM iterator number 11
+Lower bound time: 1.601467
+EM converged: 0.015081
+EM time 5.978890
+EM Lower bound: -3315910.941820
+
+EM iterator number 12
+Lower bound time: 1.590874
+EM converged: 0.009326
+EM time 5.937761
+EM Lower bound: -3284987.683111
+
+EM iterator number 13
+Lower bound time: 1.588262
+EM converged: 0.005982
+EM time 5.887773
+EM Lower bound: -3265338.401841
+
+EM iterator number 14
+Lower bound time: 1.594646
+EM converged: 0.004087
+EM time 5.895038
+EM Lower bound: -3251993.313017
+
+EM iterator number 15
+Lower bound time: 1.626326
+EM converged: 0.002999
+EM time 5.914160
+EM Lower bound: -3242240.670808
+
+EM iterator number 16
+Lower bound time: 1.613040
+EM converged: 0.002244
+EM time 5.907382
+EM Lower bound: -3234964.798266
+
+EM iterator number 17
+Lower bound time: 1.623255
+EM converged: 0.001745
+EM time 5.921597
+EM Lower bound: -3229318.798593
+
+EM iterator number 18
+Lower bound time: 1.615198
+EM converged: 0.001369
+EM time 5.911016
+EM Lower bound: -3224898.752759
+
+EM iterator number 19
+Lower bound time: 1.625418
+EM converged: 0.001131
+EM time 5.931791
+EM Lower bound: -3221249.987712
+
+EM iterator number 20
+Lower bound time: 1.647878
+EM converged: 0.000960
+EM time 5.967408
+EM Lower bound: -3218157.805597
+
+EM iterator number 21
+Lower bound time: 1.629790
+EM converged: 0.000835
+EM time 5.954165
+EM Lower bound: -3215470.676130
+
+EM iterator number 22
+Lower bound time: 1.619426
+EM converged: 0.000701
+EM time 5.939604
+EM Lower bound: -3213217.744227
+
+EM iterator number 23
+Lower bound time: 1.615066
+EM converged: 0.000587
+EM time 5.882378
+EM Lower bound: -3211331.659257
+
+EM iterator number 24
+Lower bound time: 1.609805
+EM converged: 0.000514
+EM time 5.875254
+EM Lower bound: -3209679.445034
+
+EM iterator number 25
+Lower bound time: 1.635412
+EM converged: 0.000444
+EM time 5.899923
+EM Lower bound: -3208255.071322
+
+EM iterator number 26
+Lower bound time: 1.618079
+EM converged: 0.000406
+EM time 5.880908
+EM Lower bound: -3206953.495453
+
+EM iterator number 27
+Lower bound time: 1.614992
+EM converged: 0.000378
+EM time 5.880332
+EM Lower bound: -3205739.888199
+
+EM iterator number 28
+Lower bound time: 1.611261
+EM converged: 0.000343
+EM time 5.860762
+EM Lower bound: -3204639.790275
+
+EM iterator number 29
+Lower bound time: 1.615552
+EM converged: 0.000305
+EM time 5.870852
+EM Lower bound: -3203663.192643
+
+EM iterator number 30
+Lower bound time: 1.613766
+EM converged: 0.000275
+EM time 5.902548
+EM Lower bound: -3202782.977037
+
+EM iterator number 31
+Lower bound time: 1.616131
+EM converged: 0.000254
+EM time 5.925480
+EM Lower bound: -3201970.472265
+
+EM iterator number 32
+Lower bound time: 1.615059
+EM converged: 0.000234
+EM time 5.910955
+EM Lower bound: -3201221.820396
+
+EM iterator number 33
+Lower bound time: 1.607618
+EM converged: 0.000216
+EM time 5.828274
+EM Lower bound: -3200531.422380
+
+EM iterator number 34
+Lower bound time: 1.611087
+EM converged: 0.000203
+EM time 5.864708
+EM Lower bound: -3199880.731990
+
+EM iterator number 35
+Lower bound time: 1.608740
+EM converged: 0.000186
+EM time 5.862786
+EM Lower bound: -3199286.954916
+
+EM iterator number 36
+Lower bound time: 1.615540
+EM converged: 0.000182
+EM time 5.874901
+EM Lower bound: -3198704.633696
+
+EM iterator number 37
+Lower bound time: 1.612114
+EM converged: 0.000163
+EM time 5.857980
+EM Lower bound: -3198184.081503
+
+EM iterator number 38
+Lower bound time: 1.609247
+EM converged: 0.000145
+EM time 5.858427
+EM Lower bound: -3197720.054403
+
+EM iterator number 39
+Lower bound time: 1.621718
+EM converged: 0.000139
+EM time 5.860804
+EM Lower bound: -3197275.879933
+
+EM iterator number 40
+Lower bound time: 1.614505
+EM converged: 0.000125
+EM time 5.915307
+EM Lower bound: -3196875.739938
+
+EM iterator number 41
+Lower bound time: 1.609892
+EM converged: 0.000124
+EM time 5.903451
+EM Lower bound: -3196480.636644
+
+EM iterator number 42
+Lower bound time: 1.606832
+EM converged: 0.000118
+EM time 5.891522
+EM Lower bound: -3196104.127990
+
+EM iterator number 43
+Lower bound time: 1.604665
+EM converged: 0.000102
+EM time 5.851870
+EM Lower bound: -3195778.843955
+
+EM iterator number 44
+Lower bound time: 1.602667
+EM converged: 0.000094
+EM time 5.820403
+EM Lower bound: -3195476.905174
+
+EM iterator number 45
+Lower bound time: 1.604697
+EM converged: 0.000089
+EM time 5.823912
+EM Lower bound: -3195192.215699
+
+EM iterator number 46
+Lower bound time: 1.604582
+EM converged: 0.000079
+EM time 5.837865
+EM Lower bound: -3194939.003735
+
+EM iterator number 47
+Lower bound time: 1.602178
+EM converged: 0.000078
+EM time 5.828347
+EM Lower bound: -3194689.251043
+
+EM iterator number 48
+Lower bound time: 1.598109
+EM converged: 0.000076
+EM time 5.815143
+EM Lower bound: -3194446.471360
+
+EM iterator number 49
+Lower bound time: 1.604063
+EM converged: 0.000079
+EM time 5.820414
+EM Lower bound: -3194192.669605
+
+EM iterator number 50
+Lower bound time: 1.608398
+EM converged: 0.000075
+EM time 5.882641
+EM Lower bound: -3193952.968695
+
+EM iterator number 51
+Lower bound time: 1.609341
+EM converged: 0.000072
+EM time 5.911033
+EM Lower bound: -3193724.113520
+
+EM iterator number 52
+Lower bound time: 1.599525
+EM converged: 0.000069
+EM time 5.878319
+EM Lower bound: -3193503.010830
+
+EM iterator number 53
+Lower bound time: 1.606746
+EM converged: 0.000067
+EM time 5.870765
+EM Lower bound: -3193290.013514
+
+EM iterator number 54
+Lower bound time: 1.597398
+EM converged: 0.000057
+EM time 5.843306
+EM Lower bound: -3193108.841259
+
+EM iterator number 55
+Lower bound time: 1.598485
+EM converged: 0.000058
+EM time 5.839226
+EM Lower bound: -3192923.269004
+
+EM iterator number 56
+Lower bound time: 1.596853
+EM converged: 0.000056
+EM time 5.816706
+EM Lower bound: -3192743.155194
+
+EM iterator number 57
+Lower bound time: 1.599798
+EM converged: 0.000058
+EM time 5.834874
+EM Lower bound: -3192559.400781
+
+EM iterator number 58
+Lower bound time: 1.600677
+EM converged: 0.000060
+EM time 5.836657
+EM Lower bound: -3192367.697634
+
+EM iterator number 59
+Lower bound time: 1.590306
+EM converged: 0.000050
+EM time 5.787414
+EM Lower bound: -3192209.497665
+
+EM iterator number 60
+Lower bound time: 1.595181
+EM converged: 0.000046
+EM time 5.820836
+EM Lower bound: -3192063.996834
+
+EM iterator number 61
+Lower bound time: 1.614710
+EM converged: 0.000047
+EM time 5.889019
+EM Lower bound: -3191914.356430
+
+EM iterator number 62
+Lower bound time: 1.598380
+EM converged: 0.000044
+EM time 5.885039
+EM Lower bound: -3191772.568494
+
+EM iterator number 63
+Lower bound time: 1.603904
+EM converged: 0.000044
+EM time 5.887260
+EM Lower bound: -3191633.587377
+
+EM iterator number 64
+Lower bound time: 1.596404
+EM converged: 0.000045
+EM time 5.838518
+EM Lower bound: -3191490.060996
+
+EM iterator number 65
+Lower bound time: 1.593965
+EM converged: 0.000044
+EM time 5.833714
+EM Lower bound: -3191348.106867
+
+EM iterator number 66
+Lower bound time: 1.618433
+EM converged: 0.000041
+EM time 5.851295
+EM Lower bound: -3191216.707486
+
+EM iterator number 67
+Lower bound time: 1.595291
+EM converged: 0.000036
+EM time 5.812498
+EM Lower bound: -3191101.342399
+
+EM iterator number 68
+Lower bound time: 1.592134
+EM converged: 0.000034
+EM time 5.805193
+EM Lower bound: -3190992.352581
+
+EM iterator number 69
+Lower bound time: 1.594917
+EM converged: 0.000033
+EM time 5.806758
+EM Lower bound: -3190885.763724
+
+EM iterator number 70
+Lower bound time: 1.597071
+EM converged: 0.000033
+EM time 5.810939
+EM Lower bound: -3190779.426882
+
+EM iterator number 71
+Lower bound time: 1.600220
+EM converged: 0.000032
+EM time 5.873182
+EM Lower bound: -3190677.714218
+
+EM iterator number 72
+Lower bound time: 1.601168
+EM converged: 0.000037
+EM time 5.877878
+EM Lower bound: -3190560.323851
+
+EM iterator number 73
+Lower bound time: 1.598702
+EM converged: 0.000038
+EM time 5.877672
+EM Lower bound: -3190440.338892
+
+EM iterator number 74
+Lower bound time: 1.592773
+EM converged: 0.000039
+EM time 5.814260
+EM Lower bound: -3190317.219224
+
+EM iterator number 75
+Lower bound time: 1.590955
+EM converged: 0.000041
+EM time 5.806057
+EM Lower bound: -3190185.405836
+
+EM iterator number 76
+Lower bound time: 1.590547
+EM converged: 0.000036
+EM time 5.802173
+EM Lower bound: -3190069.724646
+
+EM iterator number 77
+Lower bound time: 1.593576
+EM converged: 0.000032
+EM time 5.831478
+EM Lower bound: -3189967.013558
+
+EM iterator number 78
+Lower bound time: 1.590965
+EM converged: 0.000031
+EM time 5.805513
+EM Lower bound: -3189869.239605
+
+EM iterator number 79
+Lower bound time: 1.593226
+EM converged: 0.000031
+EM time 5.811306
+EM Lower bound: -3189769.666840
+
+EM iterator number 80
+Lower bound time: 1.591984
+EM converged: 0.000033
+EM time 5.806061
+EM Lower bound: -3189665.410046
+
+EM iterator number 81
+Lower bound time: 1.595004
+EM converged: 0.000030
+EM time 5.834679
+EM Lower bound: -3189568.345970
+
+EM iterator number 82
+Lower bound time: 1.600177
+EM converged: 0.000033
+EM time 5.857749
+EM Lower bound: -3189462.360301
+
+EM iterator number 83
+Lower bound time: 1.593928
+EM converged: 0.000031
+EM time 5.873118
+EM Lower bound: -3189363.601758
+
+EM iterator number 84
+Lower bound time: 1.590600
+EM converged: 0.000024
+EM time 5.825493
+EM Lower bound: -3189285.918439
+
+EM iterator number 85
+Lower bound time: 1.590333
+EM converged: 0.000025
+EM time 5.803783
+EM Lower bound: -3189207.032672
+
+EM iterator number 86
+Lower bound time: 1.586633
+EM converged: 0.000022
+EM time 5.754173
+EM Lower bound: -3189135.595112
+
+EM iterator number 87
+Lower bound time: 1.588344
+EM converged: 0.000021
+EM time 5.789322
+EM Lower bound: -3189069.146102
+
+EM iterator number 88
+Lower bound time: 1.591320
+EM converged: 0.000020
+EM time 5.809578
+EM Lower bound: -3189005.523967
+
+EM iterator number 89
+Lower bound time: 1.590466
+EM converged: 0.000019
+EM time 5.768393
+EM Lower bound: -3188946.411494
+
+EM iterator number 90
+Lower bound time: 1.590992
+EM converged: 0.000020
+EM time 5.792321
+EM Lower bound: -3188882.979361
+
+EM iterator number 91
+Lower bound time: 1.593459
+EM converged: 0.000022
+EM time 5.827517
+EM Lower bound: -3188813.649153
+
+EM iterator number 92
+Lower bound time: 1.592931
+EM converged: 0.000023
+EM time 5.839057
+EM Lower bound: -3188741.779449
+
+EM iterator number 93
+Lower bound time: 1.592810
+EM converged: 0.000025
+EM time 5.865870
+EM Lower bound: -3188661.266550
+
+EM iterator number 94
+Lower bound time: 1.589646
+EM converged: 0.000025
+EM time 5.816827
+EM Lower bound: -3188580.669812
+
+EM iterator number 95
+Lower bound time: 1.591587
+EM converged: 0.000024
+EM time 5.773230
+EM Lower bound: -3188504.789735
+
+EM iterator number 96
+Lower bound time: 1.588680
+EM converged: 0.000023
+EM time 5.792439
+EM Lower bound: -3188431.496924
+
+EM iterator number 97
+Lower bound time: 1.620423
+EM converged: 0.000021
+EM time 5.796415
+EM Lower bound: -3188365.713974
+
+EM iterator number 98
+Lower bound time: 1.588051
+EM converged: 0.000018
+EM time 5.790298
+EM Lower bound: -3188308.376972
+
+EM iterator number 99
+Lower bound time: 1.599948
+EM converged: 0.000022
+EM time 5.789680
+EM Lower bound: -3188236.965090
+Runtime: 590
+Lower bound: -3188236.965090

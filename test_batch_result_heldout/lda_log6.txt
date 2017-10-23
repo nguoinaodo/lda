@@ -1,0 +1,20 @@
+LDA:
+Number of document: 1684
+Number of topic: 50
+Number of term: 10473
+alpha=10.000000
+tolerance_EM=0.000100
+tolerance_var=0.000001
+
+
+EM iterator number 0
+Lower bound time: 1.117045
+EM converged: 0.999997
+EM time 4.213974
+EM Lower bound: -2741285.663418
+
+EM iterator number 1
+Lower bound time: 1.143771
+EM converged: 0.000001
+Runtime: 8
+Lower bound: -2741285.663418
