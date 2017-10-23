@@ -82,7 +82,7 @@ class LDA_VB:
 				# E step
 				print "E%d" % i
 				start = time.time()
-				phi, var_gamma = self._estimation(W, D, phi, var_gamma, i)
+				phi, var_gamma = self._estimation(W, D, phi, var_gamma)
 				# M step
 				print "M%d" %i
 				self._maximization(W, D, phi, var_gamma)
@@ -103,13 +103,13 @@ class LDA_VB:
 	 		log.write('Lower bound: %f\n' % self._old_lower_bound)	
 
  	# Estimation
- 	def _estimation(self, W, D, phi, var_gamma, eit):
+ 	def _estimation(self, W, D, phi, var_gamma):
  		for d in range(D):
- 			phi, var_gamma = self._mean_fields(d, W, phi, var_gamma, eit)
+ 			phi, var_gamma = self._mean_fields(d, W, phi, var_gamma)
  		return phi, var_gamma
  			
 	# Mean-fields algorithm
-	def _mean_fields(self, d, W, phi, var_gamma, eit):
+	def _mean_fields(self, d, W, phi, var_gamma):
 		N_d = W[d].num_words
 		W_d = W[d].to_vector()
 		old_gamma_d = np.ones(self._K)
