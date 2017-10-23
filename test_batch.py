@@ -13,7 +13,7 @@ V = len(dic) # number of terms
 count = 0
 K = [50, 100] # number of topics
 alpha = [1, 0.1, .01, 10] # dirichlet parameter
-dirname = 'test_batch_result/'
+dirname = 'test_batch_result_new_ds/'
 for k in K:
 	for a in alpha:
 		print 'Number of terms: %d' % V
