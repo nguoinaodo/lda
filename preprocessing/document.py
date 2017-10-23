@@ -10,6 +10,6 @@ class Document:
 	def to_vector(self):
 		vec = []
 		for i in range(self.num_terms):
-			for j in range(counts[i]):
-				vec.append(terms[i])
+			for j in range(self.counts[i]):
+				vec.append(self.terms[i])
 		return np.array(vec)
