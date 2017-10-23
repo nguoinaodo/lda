@@ -216,7 +216,7 @@ class LDA_VB:
 	def _count_words(self, W):
 		c = 0
 		for d in W:
-			c += len(d)	
+			c += d.num_words
 		return c
 
 	# Get top words of each topics
