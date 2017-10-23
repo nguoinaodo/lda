@@ -16,7 +16,7 @@ def to_documents(lines):
 	for l in lines:
 		a = l.strip().split(' ')
 		num_terms = int(a[0]) # number of unique terms
-		words = []
+		terms = []
 		counts = []
 		num_words = 0
 		# Add word to doc
@@ -24,7 +24,7 @@ def to_documents(lines):
 			b = t.split(':')
 			w = int(b[0]) # term
 			n_w = int(b[1]) # number of occurrence
-			words.append(w)
+			terms.append(w)
 			counts.append(n_w)
 			num_words += n_w
 		# Add doc to corpus
