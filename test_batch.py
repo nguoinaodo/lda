@@ -9,32 +9,37 @@ from preprocessing.dictionary import dictionary as dic, \
 		inverse_dictionary as inv_dic
 
 # Init 
-K = 50 # number of topics
-alpha = .01 # dirichlet parameter
 V = len(dic) # number of terms
-print 'Number of terms: %d' % V
-# print 'Number of documents: %d' % len(W_tr)
-print 'Number of documents: %d' % len(W)
+count = 0
+K = [50, 100] # number of topics
+alpha = [1, 0.1, .01, 10] # dirichlet parameter
+dirname = 'test_batch_result/'
+for k in K:
+	for a in alpha:
+		print 'Number of terms: %d' % V
+		# print 'Number of documents: %d' % len(W_tr)
+		print 'Number of documents: %d' % len(W)
 
-# Model
-lda = LDA_VB(alpha)
-lda.set_params(K=K, V=V, log='lda_log1.txt')
+		# Model
+		lda = LDA_VB(a)
+		lda.set_params(K=k, V=V, log=dirname + 'lda_log' + str(count) + '.txt')
 
-# Fitting
-# lda.fit(W_tr)
-lda.fit(W)
+		# Fitting
+		# lda.fit(W_tr)
+		lda.fit(W)
 
-# Result
-top_idxs = lda.get_top_words_indexes()
-# perplexity = lda.perplexity(W_test)
-with open('lda_result1.txt', 'w') as f:
-	# s = 'Perplexity: %f' % perplexity
-	# f.write(s)
-	for i in range(len(top_idxs)):
-		s = '\nTopic %d:' % i 
-		for idx in top_idxs[i]:
-			s += ' %s' % inv_dic[idx]
-		f.write(s)
+		# Result
+		top_idxs = lda.get_top_words_indexes()
+		# perplexity = lda.perplexity(W_test)
+		with open(dirname + 'testlda_result' + str(count) + '.txt', 'w') as f:
+			# s = 'Perplexity: %f' % perplexity
+			# f.write(s)
+			for i in range(len(top_idxs)):
+				s = '\nTopic %d:' % i 
+				for idx in top_idxs[i]:
+					s += ' %s' % inv_dic[idx]
+				f.write(s)
 
-# Save model
-save_model(lda, 'model.csv')
+		# Save model
+		save_model(lda, dirname + 'model' + str(count) + '.csv')
+		count += 1
