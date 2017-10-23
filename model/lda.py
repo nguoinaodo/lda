@@ -49,7 +49,7 @@ class LDA_VB:
 		# Variational parameter phi: DxNdxK
 		phi = []
 		for d in range(D):
-			N_d = W[d].shape[0]
+			N_d = W[d].num_words
 			# p_d = np.random.gamma(100., 1./100, (N_d, self._K))
 			# p_d = normalize(p_d, axis=1)
 			p_d = 1.* np.ones((N_d, self._K)) / self._K
@@ -107,14 +107,14 @@ class LDA_VB:
  			
 	# Mean-fields algorithm
 	def _mean_fields(self, d, W, phi, var_gamma, eit):
-		N_d = W[d].shape[0]
+		N_d = W[d].num_words
 		old_gamma_d = np.ones(self._K)
 		# old_phi_d = 1. * np.ones((N_d, self._K)) / self._K
 		for i in range(VAR_MAX_ITER):
 			# Update gamma
 			var_gamma[d] = self._alpha + np.sum(phi[d], axis = 0) # K
 			# Update phi
-			a = self._beta.T[W[d], :]
+			a = self._beta.T[W[d].to_vector(), :]
 			b = np.exp(digamma(var_gamma[d]))
 			phi[d] = normalize(a * b, axis=1)
 			# Check convergence
@@ -130,10 +130,10 @@ class LDA_VB:
 	def _maximization(self, W, D, phi, var_gamma):
 		self._beta = np.zeros((self._K, self._V))
 		for d in range(D):
-			N_d = W[d].shape[0]
+			N_d = W[d].num_words
 			# Sparse matrix
 			row = range(N_d)
-			col = W[d]
+			col = W[d].to_vector()
 			data = [1] * N_d
 			A = coo_matrix((data, (row, col)), shape=(N_d, self._V)) # NxV
 			B = phi[d].T * A
@@ -154,7 +154,7 @@ class LDA_VB:
 			# SUMn Eq log(P(Zn|theta))
 			B = np.sum(phi[d].dot(sub_digamma))
 			# SUMn Eq log(P(Wn|Zn, beta))
-			C1 = np.nan_to_num(np.log((self._beta[:, W[d]]).T)) # NxK
+			C1 = np.nan_to_num(np.log((self._beta[:, W[d].to_vector()]).T)) # NxK
 			C = np.sum(phi[d] * C1)
 			# Eq log(q(theta|gamma))
 			D1 = (var_gamma[d] - 1).dot(sub_digamma) # 1xK . Kx1 = 1

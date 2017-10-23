@@ -1,4 +1,5 @@
 import numpy as np
+from document import Document
 
 f = open('dataset/ap/ap.dat', 'r')
 
@@ -13,18 +14,22 @@ test = lines[D_train:]
 def to_documents(lines):
 	documents = []
 	for l in lines:
-		d = [] # document vector
 		a = l.strip().split(' ')
-		N = int(a[0]) # number of unique terms
+		num_terms = int(a[0]) # number of unique terms
+		words = []
+		counts = []
+		num_words = 0
 		# Add word to doc
 		for t in a[1:]:
 			b = t.split(':')
 			w = int(b[0]) # term
 			n_w = int(b[1]) # number of occurrence
-			for i in range(n_w):
-				d.append(w)
+			words.append(w)
+			counts.append(n_w)
+			num_words += n_w
 		# Add doc to corpus
-		documents.append(np.array(d))
+		doc = Document(num_terms, num_words, terms, counts)
+		documents.append(doc)
 	return documents
 
 docs = to_documents(lines)
