@@ -168,7 +168,8 @@ class LDA_VB:
 			E = np.sum(phi[d] * np.nan_to_num(np.log(phi[d])))
 			result += A + B + C - D - E
 		print "Lower bound time: %f" % (time.time() - t0)
-		log.write("Lower bound time: %f\n" % (time.time() - t0))	
+		if log:
+			log.write("Lower bound time: %f\n" % (time.time() - t0))	
 
 		return result
 
@@ -198,7 +199,7 @@ class LDA_VB:
 	def predictive(self, W):
 		D = len(W)
 		phi, var_gamma = self._infer(W, D)
-		
+
 
 	# Document topics
 	def docs_topics(self, W):
