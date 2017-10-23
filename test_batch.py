@@ -9,7 +9,7 @@ from preprocessing.dictionary import dictionary as dic, \
 		inverse_dictionary as inv_dic
 
 # Init 
-K = 100 # number of topics
+K = 50 # number of topics
 alpha = .01 # dirichlet parameter
 V = len(dic) # number of terms
 print 'Number of terms: %d' % V
@@ -18,7 +18,7 @@ print 'Number of documents: %d' % len(W)
 
 # Model
 lda = LDA_VB(alpha)
-lda.set_params(K=K, V=V)
+lda.set_params(K=K, V=V, log='lda_log1.txt')
 
 # Fitting
 # lda.fit(W_tr)
@@ -27,7 +27,7 @@ lda.fit(W)
 # Result
 top_idxs = lda.get_top_words_indexes()
 # perplexity = lda.perplexity(W_test)
-with open('lda_result.txt', 'w') as f:
+with open('lda_result1.txt', 'w') as f:
 	# s = 'Perplexity: %f' % perplexity
 	# f.write(s)
 	for i in range(len(top_idxs)):

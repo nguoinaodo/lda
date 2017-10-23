@@ -5,7 +5,7 @@ from scipy.sparse import coo_matrix
 import time
 from utils import normalize
 
-EM_MAX_ITER = 100
+EM_MAX_ITER = 50
 VAR_MAX_ITER = 20
 
 class LDA_VB:
@@ -13,12 +13,12 @@ class LDA_VB:
 		# self._K = K # Number of topics
 		self._alpha = alpha # Dirichlet parameter: double
 		# self._V = V # Vocab size
-		self._tol_EM = 1e-5
+		self._tol_EM = 1e-4
 		self._tol_var = 1e-6
 		self._old_lower_bound = -999999999999
 
 	# Set parameters
-	def set_params(self, alpha=None, beta=None, K=None, V=None):
+	def set_params(self, alpha=None, beta=None, K=None, V=None, log=None):
 		if alpha:
 			self._alpha = alpha
 		if beta:
@@ -27,6 +27,8 @@ class LDA_VB:
 			self._K = K
 		if V:
 			self._V = V	
+		if log:
+			self._log = log
 
 	# Estimate model parameters with the EM algorithm.	
 	def fit(self, W):
@@ -48,8 +50,9 @@ class LDA_VB:
 		phi = []
 		for d in range(D):
 			N_d = W[d].shape[0]
-			p_d = np.random.gamma(100., 1./100, (N_d, self._K))
-			p_d = normalize(p_d, axis=1)
+			# p_d = np.random.gamma(100., 1./100, (N_d, self._K))
+			# p_d = normalize(p_d, axis=1)
+			p_d = 1.* np.ones((N_d, self._K)) / self._K
 			phi.append(p_d)
 		phi = np.array(phi) 
 		
@@ -60,23 +63,41 @@ class LDA_VB:
 
 	# EM algorithm, with paramaters initialized	
 	def _em(self, W, D, phi, var_gamma):
-		for i in range(EM_MAX_ITER):
-			print "EM iterator number %d" % i
-			# E step
-			print "E%d" % i
-			start = time.time()
-			phi, var_gamma = self._estimation(W, D, phi, var_gamma, i)
-			# M step
-			print "M%d" %i
-			self._maximization(W, D, phi, var_gamma)
+		with open(self._log, 'w') as log:
+			log.write('LDA:\n')
+			log.write('Number of document: %d\n' % D)
+			log.write('Number of topic: %d\n' % self._K)
+			log.write('Number of term: %d\n' % self._V)
+			log.write('alpha=%f\n' % self._alpha)
+			log.write('tolerance_EM=%f\n' % self._tol_EM)
+			log.write('tolerance_var=%f\n\n' % self._tol_var)
 
-			# Check convergence
-			lower_bound = self._lower_bound(W, D, phi, var_gamma)
-			if math.fabs(lower_bound - self._old_lower_bound) < self._tol_EM:
-				break
-			self._old_lower_bound = lower_bound
-			print "EM time %f" % (time.time() - start)
- 			print "EM Lower bound: %f" % self._old_lower_bound
+			em_start = time.time()
+			for i in range(EM_MAX_ITER):
+				print "EM iterator number %d" % i
+				log.write('\nEM iterator number %d\n' %i)
+				# E step
+				print "E%d" % i
+				start = time.time()
+				phi, var_gamma = self._estimation(W, D, phi, var_gamma, i)
+				# M step
+				print "M%d" %i
+				self._maximization(W, D, phi, var_gamma)
+
+				# Check convergence
+				lower_bound = self._lower_bound(W, D, phi, var_gamma, log)
+				converged = math.fabs((lower_bound - self._old_lower_bound) / self._old_lower_bound)
+				log.write('EM converged: %f\n' % converged)
+				if converged < self._tol_EM:
+					break
+				self._old_lower_bound = lower_bound
+				print "EM time %f" % (time.time() - start)
+				log.write("EM time %f\n" % (time.time() - start))
+	 			print "EM Lower bound: %f" % self._old_lower_bound
+	 			log.write("EM Lower bound: %f\n" % self._old_lower_bound)
+
+	 		log.write('Runtime: %d\n' % (time.time() - em_start))
+	 		log.write('Lower bound: %f\n' % self._old_lower_bound)	
 
  	# Estimation
  	def _estimation(self, W, D, phi, var_gamma, eit):
@@ -121,7 +142,7 @@ class LDA_VB:
 		self._beta = normalize(self._beta, axis=1)
 
 	# Calculate lower bound
-	def _lower_bound(self, W, D, phi, var_gamma):
+	def _lower_bound(self, W, D, phi, var_gamma, log):
 		print 'Compute lower bound'
 		result = 0
 		t0 = time.time()
@@ -142,8 +163,9 @@ class LDA_VB:
 			# SUMn Eq log(q(Zn))
 			E = np.sum(phi[d] * np.nan_to_num(np.log(phi[d])))
 			result += A + B + C - D - E
-		print "Time: %f" % (time.time() - t0)
-		
+		print "Lower bound time: %f" % (time.time() - t0)
+		log.write("Lower bound time: %f\n" % (time.time() - t0))	
+
 		return result
 
 	# Get parameters for this estimator.
