@@ -7,7 +7,7 @@ from utils import normalize
 from document import Document
 
 EM_MAX_ITER = 100
-VAR_MAX_ITER = 40
+VAR_MAX_ITER = 20
 
 class LDA_VB:
 	def __init__(self, alpha):
