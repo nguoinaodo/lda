@@ -1,0 +1,88 @@
+LDA:
+Number of document: 2246
+Number of topic: 100
+Number of term: 10473
+alpha=0.100000
+tolerance_EM=0.000100
+tolerance_var=0.000001
+
+
+EM iterator number 0
+EM converged: 0.999996
+EM time 266.043000
+EM Lower bound: -4196231.253867
+
+EM iterator number 1
+EM converged: 0.165323
+EM time 192.770000
+EM Lower bound: -3502499.212279
+
+EM iterator number 2
+EM converged: 0.070159
+EM time 122.858000
+EM Lower bound: -3256767.451457
+
+EM iterator number 3
+EM converged: 0.014657
+EM time 68.720000
+EM Lower bound: -3209034.110709
+
+EM iterator number 4
+EM converged: 0.004125
+EM time 45.739000
+EM Lower bound: -3195796.601389
+
+EM iterator number 5
+EM converged: 0.001716
+EM time 45.969000
+EM Lower bound: -3190313.856217
+
+EM iterator number 6
+EM converged: 0.000885
+EM time 35.556000
+EM Lower bound: -3187489.477058
+
+EM iterator number 7
+EM converged: 0.000542
+EM time 32.712000
+EM Lower bound: -3185762.377755
+
+EM iterator number 8
+EM converged: 0.000406
+EM time 31.538000
+EM Lower bound: -3184469.549747
+
+EM iterator number 9
+EM converged: 0.000315
+EM time 30.985000
+EM Lower bound: -3183466.317480
+
+EM iterator number 10
+EM converged: 0.000229
+EM time 29.437000
+EM Lower bound: -3182736.056136
+
+EM iterator number 11
+EM converged: 0.000174
+EM time 29.428000
+EM Lower bound: -3182182.897525
+
+EM iterator number 12
+EM converged: 0.000142
+EM time 29.247000
+EM Lower bound: -3181730.863293
+
+EM iterator number 13
+EM converged: 0.000117
+EM time 28.168000
+EM Lower bound: -3181359.677196
+
+EM iterator number 14
+EM converged: 0.000103
+EM time 28.067000
+EM Lower bound: -3181031.264293
+
+EM iterator number 15
+EM converged: 0.000089
+Runtime: 1045
+Lower bound: -3181031.264293

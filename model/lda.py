@@ -7,7 +7,7 @@ from utils import normalize
 from document import Document
 
 EM_MAX_ITER = 100
-VAR_MAX_ITER = 20
+VAR_MAX_ITER = 40
 
 class LDA_VB:
 	def __init__(self, alpha):
@@ -56,17 +56,17 @@ class LDA_VB:
 		# Variational parameter phi: DxNdxK
 		phi = []
 		for d in range(D):
-			N_d = W[d].num_words
-			# p_d = np.random.gamma(100., 1./100, (N_d, self._K))
-			# p_d = normalize(p_d, axis=1)
-			p_d = 1.* np.ones((N_d, self._K)) / self._K
-			phi.append(p_d)
+			phi.append(1.* np.ones((W[d].num_words, self._K)) / self._K)
 		phi = np.array(phi) 
-		
 		# Variational parameter gamma: DxK
 		var_gamma = np.ones((D, self._K))
-
 		return phi, var_gamma
+
+	# Init params for each doc
+	def _doc_init_params(self, W, d, var_gamma, phi):
+		phi_d = np.ones((W[d].num_words, self._K))
+		var_gamma_d = (self._alpha + 1. * W[d].num_words / self._K) * np.ones(self._K)
+		return phi_d, var_gamma_d
 
 	# EM algorithm, with paramaters initialized	
 	def _em(self, W, D, phi, var_gamma):
@@ -86,13 +86,12 @@ class LDA_VB:
 				# E step
 				print "E%d" % i
 				start = time.time()
-				phi, var_gamma = self._estimation(W, D, phi, var_gamma)
+				phi, var_gamma, lower_bound = self._estimation(W, D, phi, var_gamma)
 				# M step
 				print "M%d" %i
 				self._maximization(W, D, phi, var_gamma)
 
 				# Check convergence
-				lower_bound = self._lower_bound(W, D, phi, var_gamma, log)
 				converged = math.fabs((lower_bound - self._old_lower_bound) / self._old_lower_bound)
 				log.write('EM converged: %f\n' % converged)
 				if converged < self._tol_EM:
@@ -108,32 +107,29 @@ class LDA_VB:
 
  	# Estimation
  	def _estimation(self, W, D, phi, var_gamma):
+ 		lower_bound = 0
  		for d in range(D):
- 			phi, var_gamma = self._mean_fields(d, W, phi, var_gamma)
- 		return phi, var_gamma
+ 			phi, var_gamma, doc_lower_bound = self._mean_fields(d, W, phi, var_gamma)
+ 			lower_bound += doc_lower_bound
+ 		return phi, var_gamma, lower_bound
  			
 	# Mean-fields algorithm
 	def _mean_fields(self, d, W, phi, var_gamma):
-		N_d = W[d].num_words
 		W_d = W[d].to_vector()
-		old_gamma_d = np.ones(self._K)
-		old_phi_d = 1. * np.ones((N_d, self._K)) / self._K
+		phi[d], var_gamma[d] = self._doc_init_params(W, d, var_gamma, phi)
+		old_doc_lower_bound = self._doc_lower_bound(W, d, phi, var_gamma)
 		for i in range(VAR_MAX_ITER):
+			# Update phi
+			phi[d] = normalize(self._beta.T[W_d, :] * np.exp(digamma(var_gamma[d])), axis=1)
 			# Update gamma
 			var_gamma[d] = self._alpha + np.sum(phi[d], axis = 0) # K
-			# Update phi
-			a = self._beta.T[W_d, :]
-			b = np.exp(digamma(var_gamma[d]))
-			phi[d] = normalize(a * b, axis=1)
 			# Check convergence
-			# converged = np.average(np.fabs(old_gamma_d - var_gamma[d]))
-			converged = np.average(np.fabs(old_phi_d - phi[d])) +\
-					np.average(np.fabs(old_gamma_d - var_gamma[d]))
-			if converged < 2 * self._tol_var: 
+			doc_lower_bound = self._doc_lower_bound(W, d, phi, var_gamma)
+			converged = np.fabs((old_doc_lower_bound - doc_lower_bound) / old_doc_lower_bound)
+			if converged < self._tol_var:
 				break
-			old_gamma_d = var_gamma[d]
-			old_phi_d = phi[d]
-		return phi, var_gamma
+			old_doc_lower_bound = doc_lower_bound
+		return phi, var_gamma, doc_lower_bound
 
 	# Maximization
 	def _maximization(self, W, D, phi, var_gamma):
@@ -156,25 +152,33 @@ class LDA_VB:
 		result = 0
 		t0 = time.time()
 		for d in range(D):
-			sub_digamma = digamma(var_gamma[d]) - digamma(np.sum(var_gamma[d]))
-			# Eq log(P(theta|alpha))
-			A1 = gammaln(self._K * self._alpha) - self._K * gammaln(self._alpha)
-			A = A1 + np.sum((self._alpha - 1) * sub_digamma) # A = 0
-			# SUMn Eq log(P(Zn|theta))
-			B = np.sum(phi[d].dot(sub_digamma))
-			# SUMn Eq log(P(Wn|Zn, beta))
-			C1 = np.nan_to_num(np.log((self._beta[:, W[d].to_vector()]).T)) # NxK
-			C = np.sum(phi[d] * C1)
-			# Eq log(q(theta|gamma))
-			D1 = (var_gamma[d] - 1).dot(sub_digamma) # 1xK . Kx1 = 1
-			D2 = gammaln(np.sum(var_gamma[d])) - np.sum(gammaln(var_gamma[d]))
-			D = D1 + D2
-			# SUMn Eq log(q(Zn))
-			E = np.sum(phi[d] * np.nan_to_num(np.log(phi[d])))
-			result += A + B + C - D - E
+			result += self._doc_lower_bound(W, d, phi, var_gamma)
 		print "Lower bound time: %f" % (time.time() - t0)
 		if log:
 			log.write("Lower bound time: %f\n" % (time.time() - t0))	
+		return result
+
+	# Document lower bound
+	def _doc_lower_bound(self, W, d, phi, var_gamma):
+		start = time.time()
+		# Calculate
+		sub_digamma = digamma(var_gamma[d]) - digamma(np.sum(var_gamma[d]))
+		# Eq log(P(theta|alpha))
+		A1 = gammaln(self._K * self._alpha) - self._K * gammaln(self._alpha)
+		A = A1 + np.sum((self._alpha - 1) * sub_digamma) # A = 0
+		# SUMn Eq log(P(Zn|theta))
+		B = np.sum(phi[d].dot(sub_digamma))
+		# SUMn Eq log(P(Wn|Zn, beta))
+		C1 = np.nan_to_num(np.log((self._beta[:, W[d].to_vector()]).T)) # NxK
+		C = np.sum(phi[d] * C1)
+		# Eq log(q(theta|gamma))
+		D1 = (var_gamma[d] - 1).dot(sub_digamma) # 1xK . Kx1 = 1
+		D2 = gammaln(np.sum(var_gamma[d])) - np.sum(gammaln(var_gamma[d]))
+		D = D1 + D2
+		# SUMn Eq log(q(Zn))
+		E = np.sum(phi[d] * np.nan_to_num(np.log(phi[d])))
+		result = A + B + C - D - E
+		# print 'Document lower bound time: %f' % (time.time() - start) 
 		return result
 
 	# Get parameters for this estimator.
