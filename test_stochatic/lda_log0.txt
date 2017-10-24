@@ -1,0 +1,17 @@
+Stochatic LDA:
+Number of documents: 2246
+Number of topics: 100
+Number of terms: 10473
+alpha=0.010000
+tau0=256.000000
+kappa=0.500000
+eta=0.500000
+tolerance_var=0.000001
+
+Epoch number 0
+Epoch time 87.683000Epoch number 1
+Epoch time 67.405000Epoch number 2
+Epoch time 67.709000Epoch number 3
+Epoch time 61.569000Epoch number 4
+Epoch time 63.535000Runtime: 347
+Lower bound: -8565534750.512404
