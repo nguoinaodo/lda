@@ -116,8 +116,8 @@ class LDA_VB:
 	def _mean_fields(self, d, W, phi, var_gamma):
 		N_d = W[d].num_words
 		W_d = W[d].to_vector()
-		old_gamma_d = np.ones(self._K)
-		# old_phi_d = 1. * np.ones((N_d, self._K)) / self._K
+		# old_gamma_d = np.ones(self._K)
+		old_phi_d = 1. * np.ones((N_d, self._K)) / self._K
 		for i in range(VAR_MAX_ITER):
 			# Update gamma
 			var_gamma[d] = self._alpha + np.sum(phi[d], axis = 0) # K
@@ -126,12 +126,12 @@ class LDA_VB:
 			b = np.exp(digamma(var_gamma[d]))
 			phi[d] = normalize(a * b, axis=1)
 			# Check convergence
-			converged = np.average(np.fabs(old_gamma_d - var_gamma[d]))
-			# converged = np.average(np.fabs(old_phi_d - phi[d]))
+			# converged = np.average(np.fabs(old_gamma_d - var_gamma[d]))
+			converged = np.average(np.fabs(old_phi_d - phi[d]))
 			if converged < self._tol_var: 
 				break
-			old_gamma_d = var_gamma[d]
-			# old_phi_d = phi[d]
+			# old_gamma_d = var_gamma[d]
+			old_phi_d = phi[d]
 		return phi, var_gamma
 
 	# Maximization
@@ -174,7 +174,6 @@ class LDA_VB:
 		print "Lower bound time: %f" % (time.time() - t0)
 		if log:
 			log.write("Lower bound time: %f\n" % (time.time() - t0))	
-		print result	
 		return result
 
 	# Get parameters for this estimator.
