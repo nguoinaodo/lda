@@ -6,7 +6,7 @@ import time
 from utils import normalize
 from document import Document
 
-VAR_MAX_ITER = 20
+VAR_MAX_ITER = 40
 
 class StochaticLDA_VB:
 	def __init__(self):
