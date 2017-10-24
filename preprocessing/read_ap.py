@@ -1,5 +1,5 @@
 import numpy as np
-from document import Document
+from model.document import Document
 
 f = open('dataset/ap/ap.dat', 'r')
 

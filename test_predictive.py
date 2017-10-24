@@ -11,10 +11,10 @@ from preprocessing.dictionary import dictionary as dic, \
 # Init 
 V = len(dic) # number of terms
 count = 0
-K = [100, 50] # number of topics
-alpha = [1, 0.1, .01, 10] # dirichlet parameter
-tol_EMs = [1e-4, 1e-5]
-dirname = 'test_batch_result_new_ds/'
+K = [50] # number of topics
+alpha = [.01] # dirichlet parameter
+tol_EMs = [1e-4]
+dirname = 'test_predictive/'
 for k in K:
 	for a in alpha:
 		for t in tol_EMs:
@@ -33,9 +33,10 @@ for k in K:
 			# Result
 			top_idxs = lda.get_top_words_indexes()
 			# perplexity = lda.perplexity(W_test)
+			predictive = lda.predictive(W)
 			with open(dirname + 'lda_result' + str(count) + '.txt', 'w') as f:
-				# s = 'Perplexity: %f' % perplexity
-				# f.write(s)
+				s = 'Predictive: %f' % predictive
+				f.write(s)
 				for i in range(len(top_idxs)):
 					s = '\nTopic %d:' % i 
 					for idx in top_idxs[i]:

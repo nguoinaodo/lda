@@ -4,8 +4,9 @@ import math
 from scipy.sparse import coo_matrix
 import time
 from utils import normalize
+from document import Document
 
-EM_MAX_ITER = 100
+EM_MAX_ITER = 1
 VAR_MAX_ITER = 20
 
 class LDA_VB:
@@ -16,10 +17,11 @@ class LDA_VB:
 		self._tol_EM = 1e-5
 		self._tol_var = 1e-6
 		self._old_lower_bound = -999999999999
+		self._predictive_ratio =  .75
 
 	# Set parameters
 	def set_params(self, alpha=None, beta=None, K=None, V=None, log=None,
-			tol_EM=None):
+			tol_EM=None, predictive_ratio=None):
 		if alpha:
 			self._alpha = alpha
 		if beta:
@@ -32,6 +34,8 @@ class LDA_VB:
 			self._log = log
 		if tol_EM:
 			self._tol_EM = tol_EM
+		if predictive_ratio:
+			self._predictive_ratio = predictive_ratio
 
 	# Estimate model parameters with the EM algorithm.	
 	def fit(self, W):
@@ -170,7 +174,7 @@ class LDA_VB:
 		print "Lower bound time: %f" % (time.time() - t0)
 		if log:
 			log.write("Lower bound time: %f\n" % (time.time() - t0))	
-
+		print result	
 		return result
 
 	# Get parameters for this estimator.
@@ -181,7 +185,7 @@ class LDA_VB:
 	def _infer(self, W, D):
 		phi, var_gamma = self._init_var_params(W, D)
 		# Estimation
-		self._estimation(W, D, phi, var_gamma)
+		phi, var_gamma = self._estimation(W, D, phi, var_gamma)
 		return phi, var_gamma
 
 	# Perplexity
@@ -199,7 +203,34 @@ class LDA_VB:
 	def predictive(self, W):
 		D = len(W)
 		phi, var_gamma = self._infer(W, D)
-
+		sum_log_prob = 0
+		num_new_words = 0
+		W_obs = []
+		W_he = []
+		# Split document to observed and held-out
+		for d in range(D):
+			W_d = W[d].to_vector()
+			N_d = W[d].num_words
+			i = 0
+			count_obs = 0
+			while i < W[d].num_terms and count_obs / N_d < ratio:
+				count_obs += W[d].counts[i]
+				i += 1
+			W_d_obs = Document(i, count_obs, W[d].terms[: i], W[d].counts[: i])
+			W_d_he = Document(W[d].num_terms - i, N_d - count_obs, W[d].terms[i:], \
+					W[d].counts[i:])
+			W_obs.append(W_d_obs)
+			W_he.append(W_d_he)
+		# Infer
+		phi, var_gamma = self._infer(W_obs, len(W_obs))
+		# Per-word log probability
+		for d in range(len(W_he)):
+			for i in range(W_he[d].num_terms):
+				sum_log_prob += np.log(1. * var_gamma[d].dot(self._beta[:, W_he[d].terms[i]]) /\
+						np.sum(var_gamma[d]))
+				num_new_words += W_he[d].counts[i]
+		result = 1. * sum_log_prob / num_new_words
+		return result
 
 	# Document topics
 	def docs_topics(self, W):
