@@ -1,0 +1,123 @@
+LDA:
+Number of document: 2246
+Number of topic: 100
+Number of term: 10473
+alpha=0.010000
+tolerance_EM=0.000100
+tolerance_var=0.000001
+
+
+EM iterator number 0
+EM converged: 0.999996
+EM time 277.939000
+EM Lower bound: -4187713.870357
+
+EM iterator number 1
+EM converged: 0.183116
+EM time 232.530000
+EM Lower bound: -3420875.126422
+
+EM iterator number 2
+EM converged: 0.069036
+EM time 158.214000
+EM Lower bound: -3184711.288223
+
+EM iterator number 3
+EM converged: 0.015258
+EM time 143.705000
+EM Lower bound: -3136118.783772
+
+EM iterator number 4
+EM converged: 0.004884
+EM time 134.218000
+EM Lower bound: -3120803.465806
+
+EM iterator number 5
+EM converged: 0.002449
+EM time 134.311000
+EM Lower bound: -3113159.827599
+
+EM iterator number 6
+EM converged: 0.001572
+EM time 137.723000
+EM Lower bound: -3108267.071262
+
+EM iterator number 7
+EM converged: 0.001116
+EM time 169.165000
+EM Lower bound: -3104797.105253
+
+EM iterator number 8
+EM converged: 0.000805
+EM time 176.170000
+EM Lower bound: -3102298.761216
+
+EM iterator number 9
+EM converged: 0.000586
+EM time 173.208000
+EM Lower bound: -3100480.822312
+
+EM iterator number 10
+EM converged: 0.000513
+EM time 181.950000
+EM Lower bound: -3098891.726660
+
+EM iterator number 11
+EM converged: 0.000410
+EM time 185.235000
+EM Lower bound: -3097621.414040
+
+EM iterator number 12
+EM converged: 0.000372
+EM time 178.197000
+EM Lower bound: -3096467.889322
+
+EM iterator number 13
+EM converged: 0.000288
+EM time 175.577000
+EM Lower bound: -3095575.218212
+
+EM iterator number 14
+EM converged: 0.000252
+EM time 186.034000
+EM Lower bound: -3094793.931183
+
+EM iterator number 15
+EM converged: 0.000226
+EM time 171.601000
+EM Lower bound: -3094093.849842
+
+EM iterator number 16
+EM converged: 0.000218
+EM time 183.004000
+EM Lower bound: -3093419.333477
+
+EM iterator number 17
+EM converged: 0.000171
+EM time 173.621000
+EM Lower bound: -3092890.479434
+
+EM iterator number 18
+EM converged: 0.000154
+EM time 167.480000
+EM Lower bound: -3092413.217796
+
+EM iterator number 19
+EM converged: 0.000133
+EM time 172.762000
+EM Lower bound: -3092001.438479
+
+EM iterator number 20
+EM converged: 0.000108
+EM time 170.281000
+EM Lower bound: -3091666.325575
+
+EM iterator number 21
+EM converged: 0.000105
+EM time 168.781000
+EM Lower bound: -3091340.515048
+
+EM iterator number 22
+EM converged: 0.000097
+Runtime: 4020
+Lower bound: -3091340.515048

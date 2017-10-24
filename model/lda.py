@@ -63,7 +63,7 @@ class LDA_VB:
 		return phi, var_gamma
 
 	# Init params for each doc
-	def _doc_init_params(self, W, d, var_gamma, phi):
+	def _doc_init_params(self, W, d):
 		phi_d = np.ones((W[d].num_words, self._K))
 		var_gamma_d = (self._alpha + 1. * W[d].num_words / self._K) * np.ones(self._K)
 		return phi_d, var_gamma_d
@@ -116,7 +116,7 @@ class LDA_VB:
 	# Mean-fields algorithm
 	def _mean_fields(self, d, W, phi, var_gamma):
 		W_d = W[d].to_vector()
-		phi[d], var_gamma[d] = self._doc_init_params(W, d, var_gamma, phi)
+		phi[d], var_gamma[d] = self._doc_init_params(W, d)
 		old_doc_lower_bound = self._doc_lower_bound(W, d, phi, var_gamma)
 		for i in range(VAR_MAX_ITER):
 			# Update phi
