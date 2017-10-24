@@ -116,7 +116,7 @@ class LDA_VB:
 	def _mean_fields(self, d, W, phi, var_gamma):
 		N_d = W[d].num_words
 		W_d = W[d].to_vector()
-		# old_gamma_d = np.ones(self._K)
+		old_gamma_d = np.ones(self._K)
 		old_phi_d = 1. * np.ones((N_d, self._K)) / self._K
 		for i in range(VAR_MAX_ITER):
 			# Update gamma
@@ -127,10 +127,11 @@ class LDA_VB:
 			phi[d] = normalize(a * b, axis=1)
 			# Check convergence
 			# converged = np.average(np.fabs(old_gamma_d - var_gamma[d]))
-			converged = np.average(np.fabs(old_phi_d - phi[d]))
-			if converged < self._tol_var: 
+			converged = np.average(np.fabs(old_phi_d - phi[d])) +\
+					np.average(np.fabs(old_gamma_d - var_gamma[d]))
+			if converged < 2 * self._tol_var: 
 				break
-			# old_gamma_d = var_gamma[d]
+			old_gamma_d = var_gamma[d]
 			old_phi_d = phi[d]
 		return phi, var_gamma
 
