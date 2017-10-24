@@ -11,7 +11,7 @@ from preprocessing.dictionary import dictionary as dic, \
 # Init 
 V = len(dic) # number of terms
 count = 0
-K = [50] # number of topics
+K = [100] # number of topics
 alpha = [.01] # dirichlet parameter
 tol_EMs = [1e-4]
 dirname = 'test_predictive/'
