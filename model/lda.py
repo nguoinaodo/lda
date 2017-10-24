@@ -6,7 +6,7 @@ import time
 from utils import normalize
 from document import Document
 
-EM_MAX_ITER = 1
+EM_MAX_ITER = 100
 VAR_MAX_ITER = 20
 
 class LDA_VB:
@@ -213,7 +213,7 @@ class LDA_VB:
 			N_d = W[d].num_words
 			i = 0
 			count_obs = 0
-			while i < W[d].num_terms and count_obs / N_d < ratio:
+			while i < W[d].num_terms and 1. * count_obs / N_d < self._predictive_ratio:
 				count_obs += W[d].counts[i]
 				i += 1
 			W_d_obs = Document(i, count_obs, W[d].terms[: i], W[d].counts[: i])
