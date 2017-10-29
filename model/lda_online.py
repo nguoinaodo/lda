@@ -166,7 +166,7 @@ class OnlineLDAVB:
 
 	# Update global parameter
 	def _maximize(self, suff_stat):
-		return normalize(suff_stat, axis=1)
+		return normalize(suff_stat, axis=1) + 1e-308
 
 	# Document lower bound
 	def _doc_lower_bound(self, W_d, phi_d, gamma_d):
