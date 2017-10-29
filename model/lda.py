@@ -206,7 +206,6 @@ class LDA_VB:
 	# Predictive distribution
 	def predictive(self, W):
 		D = len(W)
-		phi, var_gamma = self._infer(W, D)
 		sum_log_prob = 0
 		num_new_words = 0
 		W_obs = []

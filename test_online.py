@@ -1,5 +1,5 @@
 import numpy as np 
-from model.lda_stochatic import StochaticLDA_VB
+from model.lda_online import OnlineLDAVB
 from utils.model import save_stochatic_model, load_model
 
 # Data
@@ -12,10 +12,10 @@ from preprocessing.dictionary import dictionary as dic, \
 V = len(dic) # number of terms
 count = 0
 K = [100] # number of topics
-alpha = [.01, 0.1, 1] # dirichlet parameter
-tol_var = [1e-6]
-dirname = 'test_stochatic/'
-for t in tol_var:
+alpha = [.01]#, 0.1, 1] # dirichlet parameter
+batch_size = [200, 100, 50, 20, 10, 5, 1]
+dirname = 'test_online/'
+for size in batch_size:
 	for k in K:
 		for a in alpha:
 			print 'Number of terms: %d' % V
@@ -23,18 +23,19 @@ for t in tol_var:
 			print 'Number of documents: %d' % len(W)
 
 			# Model
-			lda = StochaticLDA_VB()
-			lda.set_params(tol_var=t, alpha=a, K=k, V=V, kappa=.5, tau0=256, eta=.5,\
-					log=dirname + 'lda_log' + str(count) + '.txt')
+			lda = OnlineLDAVB()
+			lda.set_params(alpha=a, K=k, V=V, kappa=.7, tau0=256, eta=1,\
+					log=dirname + 'lda_log' + str(count) + '.txt',\
+					batch_size=size)
 			# Fitting
-			lda.fit(W, N_epoch=5)
+			lda.fit(W)
 
 			# Result
 			top_idxs = lda.get_top_words_indexes()
-			predictive = lda.predictive(W)
+			# predictive = lda.predictive(W)
 			with open(dirname + 'lda_result' + str(count) + '.txt', 'w') as f:
-				s = 'Predictive: %f' % predictive
-				f.write(s)
+				# s = 'Predictive: %f' % predictive
+				# f.write(s)
 				for i in range(len(top_idxs)):
 					s = '\nTopic %d:' % i 
 					for idx in top_idxs[i]:

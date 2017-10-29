@@ -2,16 +2,27 @@ Stochatic LDA:
 Number of documents: 2246
 Number of topics: 100
 Number of terms: 10473
+EM max iter: 5
 alpha=0.010000
 tau0=256.000000
-kappa=0.500000
-eta=0.500000
+kappa=0.700000
+eta=1.000000
 tolerance_var=0.000001
 
 Epoch number 0
-Epoch time 87.683000Epoch number 1
-Epoch time 67.405000Epoch number 2
-Epoch time 67.709000Epoch number 3
-Epoch time 61.569000Epoch number 4
-Epoch time 63.535000Runtime: 347
-Lower bound: -8565534750.512404
+EM converged: 0.999996
+Epoch time 323.529000EM Lower bound: -4248860.228125
+Epoch number 1
+EM converged: 0.006709
+Epoch time 311.130000EM Lower bound: -4220356.669689
+Epoch number 2
+EM converged: 0.002210
+Epoch time 244.683000EM Lower bound: -4211027.660391
+Epoch number 3
+EM converged: 0.000496
+Epoch time 226.289000EM Lower bound: -4213116.529106
+Epoch number 4
+EM converged: 0.001091
+Epoch time 228.128000EM Lower bound: -4217713.521962
+Runtime: 1333
+Lower bound: -4527999.907056

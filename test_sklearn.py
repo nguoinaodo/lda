@@ -16,7 +16,7 @@ def print_top_words(model, feature_names, n_top_words):
 
 # Model
 from sklearn.decomposition import LatentDirichletAllocation
-lda = LatentDirichletAllocation(n_components=100, max_iter=20,
+lda = LatentDirichletAllocation(n_components=100, max_iter=40,
                                 learning_method='online',
                                 learning_offset=50.,
                                 random_state=0)

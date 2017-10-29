@@ -1,0 +1,12 @@
+Stochatic LDA:
+Number of documents: 2246
+Number of topics: 100
+Number of terms: 10473
+EM max iter: 1
+alpha=1.000000
+tau0=256.000000
+kappa=0.700000
+eta=0.500000
+tolerance_var=0.000001
+
+Epoch number 0
