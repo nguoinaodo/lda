@@ -13,7 +13,7 @@ V = len(dic) # number of terms
 count = 0
 K = [100] # number of topics
 alpha = [.01]#, 0.1, 1] # dirichlet parameter
-batch_size = [200, 100, 50, 20, 10, 5, 1]
+batch_size = [50]
 dirname = 'test_online/'
 for size in batch_size:
 	for k in K:
@@ -24,7 +24,7 @@ for size in batch_size:
 
 			# Model
 			lda = OnlineLDAVB()
-			lda.set_params(alpha=a, K=k, V=V, kappa=.7, tau0=256, eta=1,\
+			lda.set_params(alpha=a, K=k, V=V, kappa=.5, tau0=256, eta=.7,\
 					log=dirname + 'lda_log' + str(count) + '.txt',\
 					batch_size=size)
 			# Fitting

@@ -10,7 +10,7 @@ class OnlineLDAVB:
 	def __init__(self):
 		self.var_converged = 1e-6
 		self.predictive_ratio = .8
-		self.var_max_iter = 100
+		self.var_max_iter = 50
 		self.em_max_iter = 5
 		self.em_converged = 1e-4
 		self.batch_size = 100
@@ -66,7 +66,7 @@ class OnlineLDAVB:
 	# Init beta	
 	def _init_beta(self):
 		# Multinomial parameter beta: KxV
-		self.beta = normalize(np.random.gamma(100, 1./100, (self.K, self.V)), axis=1)
+		return normalize(np.random.gamma(100, 1./100, (self.K, self.V)), axis=1)
 
 	# Fit data	
 	def fit(self, W):
@@ -74,7 +74,7 @@ class OnlineLDAVB:
 			W: list of documents
 			N_epoch: number of epoch
 		"""	
-		self._init_beta()
+		self.beta = self._init_beta()
 		self._em(W) 
 
 	# EM with N epochs
@@ -102,7 +102,7 @@ class OnlineLDAVB:
 			# Permutation
 			random_ids = np.random.permutation(D)
 			# For minibatch
-			for t in range(D/self.batch_size + 1):
+			for t in range(int(math.ceil(D/self.batch_size))):
 				print "Minibatch %d" % t
 				log.write("Minibatch %d\n" % t)
 				# Start minibatch time
@@ -132,44 +132,55 @@ class OnlineLDAVB:
 	def _estimate(self, W, batch_ids):
 		# Init sufficiency statistic for minibatch
 		suff_stat = np.zeros(self.beta.shape)
-		# For document in batch
-		for d in batch_ids:
-			# Document flatten
-			W_d = W[d].to_vector()	
-			# Init variational parameters
-			phi_d = np.ones((W[d].num_words, self.K)) / self.K
-			gamma_d = (self.alpha + 1. * W[d].num_words / self.K) * np.ones(self.K)
-			# Init doc lower bound
-			old_lower_bound = -1e12
-			lower_bound = 0
-			# Coordinate ascent
-			for i in range(self.var_max_iter):
-				# Update phi
-				phi_d = normalize(self.beta.T[W_d, :] * np.exp(digamma(gamma_d)), axis=1)
-				# Update gamma
-				gamma_d = self.alpha + np.sum(phi_d, axis=0)
-				# Document lower bound
-				lower_bound = self._doc_lower_bound(W_d, phi_d, gamma_d)
-				# Check convergence
-				converged = np.fabs((old_lower_bound - lower_bound) / old_lower_bound)
-				if converged < self.var_converged:
-					break
-				old_lower_bound = lower_bound
-			# print 'Document lower bound: %f' % lower_bound
-			# Update sufficiency statistic
-			for j in range(W[d].num_words):
-				for k in range(self.K):
-					suff_stat[k][j] += phi_d[j][k]
+		# Init beta
+		beta = self._init_beta()
+		batch_old_lower_bound = -1e12
+		for it in range(self.em_max_iter):
+			batch_lower_bound = 0
+			# E step
+			# For document in batch
+			for d in batch_ids:
+				# Document flatten
+				W_d = W[d].to_vector()	
+				# Init variational parameters
+				phi_d = np.ones((W[d].num_words, self.K)) / self.K
+				gamma_d = (self.alpha + 1. * W[d].num_words / self.K) * np.ones(self.K)
+				# Init doc lower bound
+				old_lower_bound = -1e12
+				lower_bound = 0
+				# Coordinate ascent
+				for i in range(self.var_max_iter):
+					# Update phi
+					phi_d = normalize(beta.T[W_d, :] * np.exp(digamma(gamma_d)), axis=1)
+					# Update gamma
+					gamma_d = self.alpha + np.sum(phi_d, axis=0)
+					# Document lower bound
+					lower_bound = self._doc_lower_bound(W_d, phi_d, gamma_d, beta)
+					# Check convergence
+					converged = np.fabs((old_lower_bound - lower_bound) / old_lower_bound)
+					if converged < self.var_converged:
+						break
+					old_lower_bound = lower_bound
+				batch_lower_bound += lower_bound
+				# Update sufficiency statistic
+				for j in range(W[d].num_words):
+					for k in range(self.K):
+						suff_stat[k][j] += phi_d[j][k]
+			# M step
+			beta = self._maximize(suff_stat)
+			# Check convergence
+			converged = np.fabs((batch_old_lower_bound - batch_lower_bound) / batch_old_lower_bound)
+			if converged < self.em_converged:
+				break
+			batch_old_lower_bound = batch_lower_bound
 		return suff_stat
-
-	# 
 
 	# Update global parameter
 	def _maximize(self, suff_stat):
-		return normalize(suff_stat, axis=1) + 1e-308
+		return normalize(suff_stat, axis=1) + 1e-100
 
 	# Document lower bound
-	def _doc_lower_bound(self, W_d, phi_d, gamma_d):
+	def _doc_lower_bound(self, W_d, phi_d, gamma_d, beta):
 		# Calculate
 		sub_digamma = digamma(gamma_d) - digamma(np.sum(gamma_d))
 		# Eq log(P(theta|alpha))
@@ -178,7 +189,7 @@ class OnlineLDAVB:
 		# SUMn Eq log(P(Zn|theta))
 		B = np.sum(phi_d.dot(sub_digamma))
 		# SUMn Eq log(P(Wn|Zn, beta))
-		C1 = np.nan_to_num(np.log((self.beta[:, W_d]).T)) # NxK
+		C1 = np.nan_to_num(np.log((beta[:, W_d]).T)) # NxK
 		C = np.sum(phi_d * C1)
 		# Eq log(q(theta|gamma))
 		D1 = (gamma_d - 1).dot(sub_digamma) # 1xK . Kx1 = 1
