@@ -5,17 +5,17 @@ from utils.model import save_online_model, load_model
 # Data
 from preprocessing.read import read
 from preprocessing.dictionary import read_vocab
-W = read('dataset/ap/ap.dat')
-V, dic, inv_dic = read_vocab('dataset/ap/vocab.txt')
+W = read('dataset/dataset24k/gro/grolier-train.txt')
+V, dic, inv_dic = read_vocab('dataset/dataset24k/gro/grolier-voca.txt')
 
 # Init 
 V = len(dic) # number of terms
 count = 0
-dirname = 'test_online/'
-for size in [100]:
+dirname = 'test_online_gro/'
+for size in [1000]:
 	for k in [100]:
-		for alpha in [.01]:
-			for kappa in [.7]:
+		for alpha in [.1]:
+			for kappa in [.5]:
 				for tau0 in [64]:
 					# Model
 					lda = OnlineLDAVB()

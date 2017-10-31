@@ -3,10 +3,10 @@ from model.lda import LDA_VB
 from utils.model import save_model, load_model
 
 # Data
-from preprocessing.read_ap import docs_train as W_tr, docs_test as W_test,\
-		docs as W
-from preprocessing.dictionary import dictionary as dic, \
-		inverse_dictionary as inv_dic
+from preprocessing.read import read_split
+from preprocessing.dictionary import read_vocab
+W, W_tr, W_test = read_split('dataset/ap/ap.dat')
+V, dic, inv_dic = read_vocab('dataset/ap/vocab.txt')
 
 # Init 
 V = len(dic) # number of terms

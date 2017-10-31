@@ -2,9 +2,10 @@ import numpy as np
 from time import time
 
 # Data
-from preprocessing.read_ap import sparse_docs as W_tr
-from preprocessing.dictionary import dictionary as dic, \
-		inverse_dictionary as inv_dic, terms
+from preprocessing.read import read_split
+from preprocessing.dictionary import read_vocab
+W, W_tr, W_test = read_split('dataset/ap/ap.dat')
+V, dic, inv_dic = read_vocab('dataset/ap/vocab.txt')
 
 def print_top_words(model, feature_names, n_top_words):
     for topic_idx, topic in enumerate(model.components_):

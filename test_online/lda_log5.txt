@@ -4,15 +4,11 @@ Number of documents: 2246
 Number of topics: 100
 Number of terms: 10473
 EM max iter: 2
-alpha=0.010000
+alpha=0.100000
 tau0=64.000000
-kappa=0.700000
+kappa=0.500000
 eta=0.700000
 tolerance_var=0.000001
 
 Minibatch 0
-E
-M
-Minibatch run time: 65.471000
-Minibatch 1
 E

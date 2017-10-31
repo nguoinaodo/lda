@@ -1,15 +1,8 @@
 import numpy as np
 from model.document import Document
+from dictionary import read_vocab
+from scipy.sparse import coo_matrix
 
-f = open('dataset/ap/ap.dat', 'r')
-
-# Read lines
-lines = f.readlines()
-D = len(lines)
-D_train = 3 * D /4
-D_test = D - D_train
-train = lines[: D_train]
-test = lines[D_train:]
 # To documents
 def to_documents(lines):
 	documents = []
@@ -32,15 +25,8 @@ def to_documents(lines):
 		documents.append(doc)
 	return documents
 
-docs = to_documents(lines)
-docs_train = to_documents(train)
-docs_test = to_documents(test)
-
-from dictionary import V
 # To documents: sparse matrix
-from scipy.sparse import coo_matrix
-
-def to_sparse_matrix(lines):
+def to_sparse_matrix(lines, V):
 	D = len(lines)
 	row = []
 	col = []
@@ -57,6 +43,28 @@ def to_sparse_matrix(lines):
 
 	return coo_matrix((data, (row, col)), shape=(D, V))
 
-# sparse_docs_train = to_sparse_matrix(train)
-# sparse_docs_test = to_sparse_matrix(test)
-sparse_docs = to_sparse_matrix(lines)
+
+def read(filename):
+	f = open(filename, 'r')
+	# Read lines
+	lines = f.readlines()
+	D = len(lines)
+	docs = to_documents(lines)
+
+	return docs
+
+def read_split(filename):
+	f = open(filename, 'r')
+	# Read lines
+	lines = f.readlines()
+	D = len(lines)
+	D_train = 3 * D /4
+	D_test = D - D_train
+	train = lines[: D_train]
+	test = lines[D_train:]
+	# To documents
+	docs = to_documents(lines)
+	docs_train = to_documents(train)
+	docs_test = to_documents(test)
+
+	return docs, docs_train, docs_test

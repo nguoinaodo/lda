@@ -10,7 +10,7 @@ class OnlineLDAVB:
 	def __init__(self):
 		self.var_converged = 1e-6
 		self.predictive_ratio = .8
-		self.var_max_iter = 100
+		self.var_max_iter = 50
 		self.em_max_iter = 2
 		self.em_converged = 1e-4
 		self.batch_size = 100
@@ -134,9 +134,13 @@ class OnlineLDAVB:
 				print 'M'
 				beta_star = self._maximize(suff_stat) # intermediate
 				ro_t = (self.tau0 + t) ** (-self.kappa) # update weight
-				print ro_t
+
+				# print ro_t
+
 				self.beta = (1 - ro_t) * self.beta + ro_t * beta_star
-				print self.beta
+
+				# print 'Beta min: %f' % np.min(self.beta)
+
 				# Batch run time
 				mb_run_time = time.time() - mb_start
 				log.write('Minibatch run time: %f\n' % mb_run_time)

@@ -1,0 +1,101 @@
+---------------------------------
+Stochatic LDA:
+Number of documents: 2246
+Number of topics: 100
+Number of terms: 10473
+EM max iter: 2
+alpha=0.010000
+tau0=64.000000
+kappa=0.900000
+eta=0.700000
+tolerance_var=0.000001
+
+Minibatch 0
+E
+M
+Minibatch run time: 6.791000
+Minibatch 1
+E
+M
+Minibatch run time: 6.816000
+Minibatch 2
+E
+M
+Minibatch run time: 6.203000
+Minibatch 3
+E
+M
+Minibatch run time: 6.705000
+Minibatch 4
+E
+M
+Minibatch run time: 6.508000
+Minibatch 5
+E
+M
+Minibatch run time: 5.929000
+Minibatch 6
+E
+M
+Minibatch run time: 6.283000
+Minibatch 7
+E
+M
+Minibatch run time: 6.527000
+Minibatch 8
+E
+M
+Minibatch run time: 6.505000
+Minibatch 9
+E
+M
+Minibatch run time: 7.103000
+Minibatch 10
+E
+M
+Minibatch run time: 5.788000
+Minibatch 11
+E
+M
+Minibatch run time: 6.314000
+Minibatch 12
+E
+M
+Minibatch run time: 6.166000
+Minibatch 13
+E
+M
+Minibatch run time: 6.291000
+Minibatch 14
+E
+M
+Minibatch run time: 6.122000
+Minibatch 15
+E
+M
+Minibatch run time: 5.754000
+Minibatch 16
+E
+M
+Minibatch run time: 6.651000
+Minibatch 17
+E
+M
+Minibatch run time: 6.356000
+Minibatch 18
+E
+M
+Minibatch run time: 6.143000
+Minibatch 19
+E
+M
+Minibatch run time: 5.753000
+Minibatch 20
+E
+M
+Minibatch run time: 6.264000
+Minibatch 21
+E
+M
+Minibatch run time: 6.267000
+Run time: 139.241000
