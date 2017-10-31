@@ -94,16 +94,19 @@ class OnlineLDAVB:
 			W: list of documents
 			N_epoch: number of epoch
 		"""	
-		# Log info
-		self._log_info(W)
 		# Init beta
 		self._init_beta(W, len(W))
 		# Run EM
 		self._em(W, W_test) 
 
-	# Log info
-	def _log_info(self, W):	
-		with open(self.log, 'w') as log:
+	# EM with N epochs
+	def _em(self, W, W_test=None):
+		D = len(W)
+		with open(self.log, 'a') as log:
+			print '----------------------------------'
+			print 'Number of documents: %d' % D
+			print 'Number of topics: %d' % self.K
+			print 'Number of terms: %d' % self.V
 			log.write('---------------------------------\n')
 			log.write('Online LDA:\n')
 			log.write('Number of documents: %d\n' % len(W))
@@ -118,15 +121,6 @@ class OnlineLDAVB:
 			log.write('var_max_iter=%d\n' % self.var_max_iter)
 			log.write('----------------------------------\n')
 
-	# EM with N epochs
-	def _em(self, W, W_test=None):
-		D = len(W)
-		with open(self.log, 'a') as log:
-			print '----------------------------------'
-			print 'Number of documents: %d' % D
-			print 'Number of topics: %d' % self.K
-			print 'Number of terms: %d' % self.V
-			
 			# Start time
 			start = time.time()
 			# Permutation

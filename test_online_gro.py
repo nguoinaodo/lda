@@ -14,12 +14,12 @@ W_he_1 = read('dataset/dataset24k/gro/data_test_1_part_2.txt')
 V = len(dic) # number of terms
 count = 0
 dirname = 'test_online_gro/'
-for var_i in [50, 100]:
-	for size in [1000,2000,500,200,100]:
+for var_i in [100]:
+	for size in [1000]:
 		for k in [100]:
-			for alpha in [.1,.01]:
-				for kappa in [.5,.6,.7,.8,.9]:
-					for tau0 in [64,128,256,512,1024]:
+			for alpha in [.1]:
+				for kappa in [.5]:
+					for tau0 in [64]:
 						# Model
 						lda = OnlineLDAVB()
 						lda.set_params(alpha=alpha, K=k, V=V, kappa=kappa, tau0=tau0, eta=.7,\

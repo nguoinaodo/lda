@@ -9,33 +9,98 @@ tau0=64.000000
 kappa=0.500000
 eta=0.700000
 var_converged=0.000001
-var_max_iter=50
+var_max_iter=100
 ----------------------------------
 Minibatch 0
 E
 M
-Minibatch run time: 32.722000
+Minibatch run time: 58.179000
 Minibatch 1
 E
 M
-Minibatch run time: 31.202000
+Minibatch run time: 52.437000
 Minibatch 2
 E
 M
-Minibatch run time: 32.237000
+Minibatch run time: 59.972000
 Minibatch 3
 E
 M
-Minibatch run time: 31.533000
+Minibatch run time: 53.234000
 Minibatch 4
 E
 M
-Minibatch run time: 27.521000
+Minibatch run time: 44.477000
 Minibatch 5
 E
 M
-Minibatch run time: 29.928000
+Minibatch run time: 38.290000
 Minibatch 6
 E
 M
-Minibatch run time: 29.308000
+Minibatch run time: 36.110000
+Minibatch 7
+E
+M
+Minibatch run time: 39.860000
+Minibatch 8
+E
+M
+Minibatch run time: 34.636000
+Minibatch 9
+E
+M
+Minibatch run time: 44.445000
+Minibatch 10
+E
+M
+Minibatch run time: 41.812000
+Minibatch 11
+E
+M
+Minibatch run time: 41.165000
+Minibatch 12
+E
+M
+Minibatch run time: 40.750000
+Minibatch 13
+E
+M
+Minibatch run time: 40.380000
+Minibatch 14
+E
+M
+Minibatch run time: 38.008000
+Minibatch 15
+E
+M
+Minibatch run time: 33.789000
+Minibatch 16
+E
+M
+Minibatch run time: 46.587000
+Minibatch 17
+E
+M
+Minibatch run time: 40.629000
+Minibatch 18
+E
+M
+Minibatch run time: 42.063000
+Minibatch 19
+E
+M
+Minibatch run time: 42.484000
+Minibatch 20
+E
+M
+Minibatch run time: 37.114000
+Minibatch 21
+E
+M
+Minibatch run time: 37.838000
+Minibatch 22
+E
+M
+Minibatch run time: 43.618000
+Run time: 1454.797000
