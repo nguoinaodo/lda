@@ -5,7 +5,10 @@ from scipy.sparse import coo_matrix
 import time
 from utils import normalize
 from document import Document
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt 
+
 
 class OnlineLDAVB:
 	def __init__(self):
@@ -282,5 +285,5 @@ class OnlineLDAVB:
 		plt.ylabel(ylabel)
 		if self.plotfile:
 			plt.savefig(self.plotfile)
-		plt.show()
+		# plt.show()
 		

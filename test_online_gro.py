@@ -14,7 +14,7 @@ W_he_1 = read('dataset/dataset24k/gro/data_test_1_part_2.txt')
 V = len(dic) # number of terms
 count = 0
 dirname = 'test_online_gro/'
-for var_i in [100]:
+for var_i in [50]:
 	for size in [1000]:
 		for k in [100]:
 			for alpha in [.1]:

@@ -104,3 +104,32 @@ E
 M
 Minibatch run time: 43.618000
 Run time: 1454.797000
+---------------------------------
+Online LDA:
+Number of documents: 23044
+Number of topics: 100
+Number of terms: 15276
+Batch size: 1000
+alpha=0.100000
+tau0=64.000000
+kappa=0.500000
+eta=0.700000
+var_converged=0.000001
+var_max_iter=100
+----------------------------------
+Minibatch 0
+E
+M
+Minibatch run time: 47.947000
+Minibatch 1
+E
+M
+Minibatch run time: 46.637000
+Minibatch 2
+E
+M
+Minibatch run time: 44.058000
+Minibatch 3
+E
+M
+Minibatch run time: 48.773000
