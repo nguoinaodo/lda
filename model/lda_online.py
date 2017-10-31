@@ -105,7 +105,7 @@ class OnlineLDAVB:
 	# EM with N epochs
 	def _em(self, W, W_test=None):
 		D = len(W)
-		with open(self.log, 'a') as log:
+		with open(self.log, 'w') as log:
 			print '----------------------------------'
 			print 'Number of documents: %d' % D
 			print 'Number of topics: %d' % self.K
