@@ -5,6 +5,7 @@ from scipy.sparse import coo_matrix
 import time
 from utils import normalize
 from document import Document
+import matplotlib.pyplot as plt 
 
 class OnlineLDAVB:
 	def __init__(self):
@@ -68,7 +69,7 @@ class OnlineLDAVB:
 		# Multinomial parameter beta: KxV
 		self.beta = normalize(np.random.gamma(100, 1./100, (self.K, self.V)), axis=1)
 
-	def _init_beta2(self, W, D):
+	def _init_beta_corpus(self, W, D):
 		self.beta = np.zeros((self.K, self.V))
 		num_doc_per_topic = 5
 
@@ -85,40 +86,56 @@ class OnlineLDAVB:
 
 
 	# Fit data	
-	def fit(self, W):
+	def fit(self, W, W_test=None):
 		"""
 			W: list of documents
 			N_epoch: number of epoch
 		"""	
+		# Log info
+		self._log_info(W)
+		# Init beta
 		self._init_beta(W, len(W))
-		self._em(W) 
+		# Run EM
+		self._em(W, W_test) 
 
-	# EM with N epochs
-	def _em(self, W):
-		D = len(W)
+	# Log info
+	def _log_info(self, W):	
 		with open(self.log, 'w') as log:
-			print '----------------------------------'
 			log.write('---------------------------------\n')
-			log.write('Stochatic LDA:\n')
-			log.write('Number of documents: %d\n' % D)
-			print 'Number of documents: %d' % D
-			print 'Number of topics: %d' % self.K
-			print 'Number of terms: %d' % self.V
+			log.write('Online LDA:\n')
+			log.write('Number of documents: %d\n' % len(W))
 			log.write('Number of topics: %d\n' % self.K)
 			log.write('Number of terms: %d\n' % self.V)
-			log.write('EM max iter: %d\n' % self.em_max_iter)
+			log.write('Batch size: %d\n' % self.batch_size)
 			log.write('alpha=%f\n' % self.alpha)
 			log.write('tau0=%f\n' % self.tau0)
 			log.write('kappa=%f\n' % self.kappa)
 			log.write('eta=%f\n' % self.eta)
-			log.write('tolerance_var=%f\n\n' % self.var_converged)
+			log.write('var_converged=%f\n' % self.var_converged)
+			log.write('var_max_iter=%d\n' % self.var_max_iter)
+			log.write('----------------------------------\n')
 
+	# EM with N epochs
+	def _em(self, W, W_test=None):
+		D = len(W)
+		# Test
+		if W_test != None:
+			W_obs = W_test[0]
+			W_he = W_test[1]
+		with open(self.log, 'a') as log:
+			print '----------------------------------'
+			print 'Number of documents: %d' % D
+			print 'Number of topics: %d' % self.K
+			print 'Number of terms: %d' % self.V
+			
 			# Start time
 			start = time.time()
 			# Permutation
 			random_ids = np.random.permutation(D)
 			# For minibatch
-			for t in range(int(math.ceil(D/self.batch_size))):
+			batchs = range(int(math.ceil(D/self.batch_size)))
+			predictives = [] # predictive after each minibatch
+			for t in batchs:
 				print "Minibatch %d" % t
 				log.write("Minibatch %d\n" % t)
 				# Start minibatch time
@@ -134,22 +151,26 @@ class OnlineLDAVB:
 				print 'M'
 				beta_star = self._maximize(suff_stat) # intermediate
 				ro_t = (self.tau0 + t) ** (-self.kappa) # update weight
-
-				# print ro_t
-
 				self.beta = (1 - ro_t) * self.beta + ro_t * beta_star
-
-				# print 'Beta min: %f' % np.min(self.beta)
 
 				# Batch run time
 				mb_run_time = time.time() - mb_start
 				log.write('Minibatch run time: %f\n' % mb_run_time)
 				print 'Minibatch run time: %f' % mb_run_time
+				# Predictive after each minibatch
+				if W_test != None:
+					pred = self.predictive(W_obs, W_he)
+					predictives.append(pred)
+
 			# Time
 			run_time = time.time() - start
 			log.write('Run time: %f\n' % run_time)
 			print 'Run time: %f' % run_time
-	
+			# Plot
+			if len(predictives) > 0:
+				self.plot_2d(batchs, predictives, 'Minibatch', 'Per-word log predictive')
+
+	# Init variational parameters for each document
 	def _doc_init_params(self, W_d):
 		phi_d = np.ones((W_d.num_words, self.K)) / self.K
 		gamma_d = (self.alpha + 1. * W_d.num_words / self.K) * np.ones(self.K)	
@@ -214,11 +235,9 @@ class OnlineLDAVB:
 			var_gamma.append(gamma_d)
 		return phi, var_gamma	
 
-	# Predictive distribution
-	def predictive(self, W):
+	# Split observed - held-out
+	def _split_observed_heldout(self, W):
 		D = len(W)
-		sum_log_prob = 0
-		num_new_words = 0
 		W_obs = []
 		W_he = []
 		# Split document to observed and held-out
@@ -235,19 +254,37 @@ class OnlineLDAVB:
 					W[d].counts[i:])
 			W_obs.append(W_d_obs)
 			W_he.append(W_d_he)
+		return W_obs, W_he
+
+	# Predictive distribution
+	def _predictive(self, W_obs, W_he):
+		sum_log_prob = 0 # Sum of log of P(w_new|w_obs, W)
+		num_new_words = 0 # Number of new words
 		# Infer
 		phi, var_gamma = self._infer(W_obs, len(W_obs))
 		# Per-word log probability
 		for d in range(len(W_he)):
+			num_new_words += W_he[d].num_words
 			for i in range(W_he[d].num_terms):
-				sum_log_prob += np.log(1. * var_gamma[d].dot(self.beta[:, W_he[d].terms[i]]) /\
+				sum_log_prob += W_he[d].counts[i] * np.log(1. * var_gamma[d].dot(self.beta[:, W_he[d].terms[i]]) /\
 						np.sum(var_gamma[d]))
-				num_new_words += W_he[d].counts[i]
 		result = 1. * sum_log_prob / num_new_words
 		return result	
 
+	def predictive(self, W):
+		# Split 
+		W_obs, W_he = self._split_observed_heldout(W)
+		return self._predictive(W_obs, W_he)
 
+	def predictive(self, W_obs, W_he):
+		return self._predictive(W_obs, W_he)
 
+	# Plot
+	def plot_2d(self, x, y, xlabel=None, ylabel=None):
+		plt.plot(x, y, 'b')
+		plt.xlabel(xlabel)
+		plt.ylabel(ylabel)
+		plt.show()
 
 
 

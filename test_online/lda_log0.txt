@@ -1,18 +1,51 @@
 ---------------------------------
-Stochatic LDA:
+Online LDA:
 Number of documents: 2246
 Number of topics: 100
 Number of terms: 10473
-EM max iter: 2
+Batch size: 100
 alpha=0.010000
 tau0=64.000000
 kappa=0.700000
 eta=0.700000
-tolerance_var=0.000001
-
+var_converged=0.000001
+var_max_iter=50
+----------------------------------
 Minibatch 0
 E
 M
-Minibatch run time: 65.471000
+Minibatch run time: 5.481000
 Minibatch 1
+E
+M
+Minibatch run time: 4.863000
+Minibatch 2
+E
+M
+Minibatch run time: 4.418000
+Minibatch 3
+E
+M
+Minibatch run time: 4.348000
+Minibatch 4
+E
+M
+Minibatch run time: 4.669000
+Minibatch 5
+E
+M
+Minibatch run time: 4.585000
+Minibatch 6
+E
+M
+Minibatch run time: 4.574000
+Minibatch 7
+E
+M
+Minibatch run time: 4.563000
+Minibatch 8
+E
+M
+Minibatch run time: 5.207000
+Minibatch 9
 E

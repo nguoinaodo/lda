@@ -10,8 +10,3 @@ def pdf(alpha, x):
 def sample(alpha):
 	d = dirichlet(alpha)
 	return d.rvs()
-
-# Test
-a = dirichlet([2,2,2,2])
-# print a.pdf([.1,.3,.5,.1])
-# print a.rvs()

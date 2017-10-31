@@ -8,7 +8,7 @@ def save_model(model, filename):
 		writer.writerow([alpha])
 		writer.writerows(beta)
 
-def load_model(LDA_VB, filename):
+def load_model(model, filename):
 	with open(filename, 'r') as f:
 		alpha = float(f.readline())
 		beta = []
@@ -17,7 +17,7 @@ def load_model(LDA_VB, filename):
 			a = l.split(',')
 			beta.append(a)
 		beta = np.array(beta).astype(np.float)
-	lda = LDA_VB(alpha)
+	lda = model(alpha)
 	lda.set_params(beta=beta)
 	return lda
 

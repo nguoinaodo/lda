@@ -21,9 +21,6 @@ def sample(p):
 			j -= 1		
 	return j		
 
-# Test
-p = [.1, .1, .4, .4]                                  
-print sample(p)
 
 
 
