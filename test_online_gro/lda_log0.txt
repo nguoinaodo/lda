@@ -11,3 +11,31 @@ eta=0.700000
 var_converged=0.000001
 var_max_iter=50
 ----------------------------------
+Minibatch 0
+E
+M
+Minibatch run time: 32.722000
+Minibatch 1
+E
+M
+Minibatch run time: 31.202000
+Minibatch 2
+E
+M
+Minibatch run time: 32.237000
+Minibatch 3
+E
+M
+Minibatch run time: 31.533000
+Minibatch 4
+E
+M
+Minibatch run time: 27.521000
+Minibatch 5
+E
+M
+Minibatch run time: 29.928000
+Minibatch 6
+E
+M
+Minibatch run time: 29.308000

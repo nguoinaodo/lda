@@ -286,6 +286,7 @@ class OnlineLDAVB:
 		plt.plot(x, y, 'b')
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
-		plt.show()
 		if self.plotfile:
 			plt.savefig(self.plotfile)
+		plt.show()
+		
