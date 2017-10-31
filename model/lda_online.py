@@ -10,7 +10,7 @@ class OnlineLDAVB:
 	def __init__(self):
 		self.var_converged = 1e-6
 		self.predictive_ratio = .8
-		self.var_max_iter = 50
+		self.var_max_iter = 100
 		self.em_max_iter = 2
 		self.em_converged = 1e-4
 		self.batch_size = 100
@@ -64,9 +64,25 @@ class OnlineLDAVB:
 		return self.alpha, self.beta, self.tau0, self.kappa, self.eta
 
 	# Init beta	
-	def _init_beta(self):
+	def _init_beta(self, W, D):
 		# Multinomial parameter beta: KxV
-		return normalize(np.random.gamma(100, 1./100, (self.K, self.V)), axis=1)
+		self.beta = normalize(np.random.gamma(100, 1./100, (self.K, self.V)), axis=1)
+
+	def _init_beta2(self, W, D):
+		self.beta = np.zeros((self.K, self.V))
+		num_doc_per_topic = 5
+
+		for i in range(num_doc_per_topic):
+		    rand_index = np.random.permutation(D)
+		    for k in range(self.K):
+		        d = rand_index[k]
+		        doc = W[d]
+		        for n in range(doc.num_terms):
+		            self.beta[k][doc.terms[n]] += doc.counts[n]
+		    
+		self.beta += 1
+		self.beta = normalize(self.beta, axis=1)
+
 
 	# Fit data	
 	def fit(self, W):
@@ -74,7 +90,7 @@ class OnlineLDAVB:
 			W: list of documents
 			N_epoch: number of epoch
 		"""	
-		self.beta = self._init_beta()
+		self._init_beta(W, len(W))
 		self._em(W) 
 
 	# EM with N epochs
@@ -118,7 +134,9 @@ class OnlineLDAVB:
 				print 'M'
 				beta_star = self._maximize(suff_stat) # intermediate
 				ro_t = (self.tau0 + t) ** (-self.kappa) # update weight
+				print ro_t
 				self.beta = (1 - ro_t) * self.beta + ro_t * beta_star
+				print self.beta
 				# Batch run time
 				mb_run_time = time.time() - mb_start
 				log.write('Minibatch run time: %f\n' % mb_run_time)
@@ -128,50 +146,112 @@ class OnlineLDAVB:
 			log.write('Run time: %f\n' % run_time)
 			print 'Run time: %f' % run_time
 	
+	def _doc_init_params(self, W_d):
+		phi_d = np.ones((W_d.num_words, self.K)) / self.K
+		gamma_d = (self.alpha + 1. * W_d.num_words / self.K) * np.ones(self.K)	
+		return phi_d, gamma_d	
+
 	# Estimate batch
 	def _estimate(self, W, batch_ids):
 		# Init sufficiency statistic for minibatch
 		suff_stat = np.zeros(self.beta.shape)
 		# For document in batch
 		for d in batch_ids:
-			# Document flatten
-			W_d = W[d].to_vector()	
-			# Init variational parameters
-			phi_d = np.ones((W[d].num_words, self.K)) / self.K
-			gamma_d = (self.alpha + 1. * W[d].num_words / self.K) * np.ones(self.K)
-			# Init doc lower bound
-
-			# old_lower_bound = -1e12
-			# lower_bound = 0
-
-			# Coordinate ascent
-			old_gamma_d = gamma_d
-			for i in range(self.var_max_iter):
-				# Update phi
-				phi_d = normalize(self.beta.T[W_d, :] * np.exp(digamma(gamma_d)), axis=1)
-				# Update gamma
-				gamma_d = self.alpha + np.sum(phi_d, axis=0)
-
-				# Document lower bound
-				# lower_bound = self._doc_lower_bound(W_d, phi_d, gamma_d, beta)
-
-				# Check convergence
-				meanchange = np.mean(np.fabs(old_gamma_d - gamma_d))
-				if meanchange < self.var_converged:
-					break
-				old_gamma_d = gamma_d
-
-			# batch_lower_bound += lower_bound
-			
+			# Estimate doc
+			phi_d, gamma_d, W_d = self._estimate_doc(W, d)
 			# Update sufficiency statistic
 			for j in range(W[d].num_words):
 				for k in range(self.K):
-					suff_stat[k][j] += phi_d[j][k]
+					suff_stat[k][W_d[j]] += phi_d[j][k]
 		return suff_stat
+
+	def _estimate_doc(self, W, d):
+		# Document flatten
+		W_d = W[d].to_vector()	
+		# Init variational parameters
+		phi_d, gamma_d = self._doc_init_params(W[d])
+
+		# Coordinate ascent
+		old_gamma_d = gamma_d
+		for i in range(self.var_max_iter):
+			# Update phi
+			phi_d = normalize(self.beta.T[W_d, :] * np.exp(digamma(gamma_d)), axis=1)
+			# Update gamma
+			gamma_d = self.alpha + np.sum(phi_d, axis=0)
+
+			# Check convergence
+			meanchange = np.mean(np.fabs(old_gamma_d - gamma_d))
+			if meanchange < self.var_converged:
+				break
+			old_gamma_d = gamma_d
+		return phi_d, gamma_d, W_d
 
 	# Update global parameter
 	def _maximize(self, suff_stat):
 		return normalize(suff_stat, axis=1) + 1e-100
+
+	# Get top words of each topics
+	def get_top_words_indexes(self):
+		top_idxs = []
+		# For each topic
+		for t in self.beta:
+			desc_idx = np.argsort(t)[::-1]
+			top_idx = desc_idx[:20]
+			top_idxs.append(top_idx)
+		return np.array(top_idxs)	
+
+	# Inference new docs
+	def _infer(self, W, D):
+		phi = []
+		var_gamma = []
+		for d in range(D):
+			phi_d, gamma_d, W_d = self._estimate_doc(W, d)
+			phi.append(phi_d)
+			var_gamma.append(gamma_d)
+		return phi, var_gamma	
+
+	# Predictive distribution
+	def predictive(self, W):
+		D = len(W)
+		sum_log_prob = 0
+		num_new_words = 0
+		W_obs = []
+		W_he = []
+		# Split document to observed and held-out
+		for d in range(D):
+			W_d = W[d].to_vector()
+			N_d = W[d].num_words
+			i = 0
+			count_obs = 0
+			while i < W[d].num_terms and 1. * count_obs / N_d < self.predictive_ratio:
+				count_obs += W[d].counts[i]
+				i += 1
+			W_d_obs = Document(i, count_obs, W[d].terms[: i], W[d].counts[: i])
+			W_d_he = Document(W[d].num_terms - i, N_d - count_obs, W[d].terms[i:], \
+					W[d].counts[i:])
+			W_obs.append(W_d_obs)
+			W_he.append(W_d_he)
+		# Infer
+		phi, var_gamma = self._infer(W_obs, len(W_obs))
+		# Per-word log probability
+		for d in range(len(W_he)):
+			for i in range(W_he[d].num_terms):
+				sum_log_prob += np.log(1. * var_gamma[d].dot(self.beta[:, W_he[d].terms[i]]) /\
+						np.sum(var_gamma[d]))
+				num_new_words += W_he[d].counts[i]
+		result = 1. * sum_log_prob / num_new_words
+		return result	
+
+
+
+
+
+
+
+
+
+
+
 
 	# Document lower bound
 	def _doc_lower_bound(self, W_d, phi_d, gamma_d, beta):
@@ -193,43 +273,9 @@ class OnlineLDAVB:
 		E = np.sum(phi_d * np.nan_to_num(np.log(phi_d)))
 		result = A + B + C - D - E
 		# print 'Document lower bound time: %f' % (time.time() - start) 
-		return result
+		return result	
 
-	# Get top words of each topics
-	def get_top_words_indexes(self):
-		top_idxs = []
-		# For each topic
-		for t in self.beta:
-			desc_idx = np.argsort(t)[::-1]
-			top_idx = desc_idx[:20]
-			top_idxs.append(top_idx)
-		return np.array(top_idxs)	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	# Inference new docs
-	def _infer(self, W, D):
-		phi = []
-		var_gamma = []
-		for d in range(D):
-			phi_d, var_gamma_d = self._doc_init_params(W, d)
-			self._estimation_doc(W, D, d, phi_d, var_gamma_d)
-			phi.append(phi_d)
-			var_gamma.append(var_gamma_d)
-		return phi, var_gamma
+	
 
 	# Calculate lower bound
 	def _lower_bound(self, W, D, phi, var_gamma):
@@ -261,35 +307,4 @@ class OnlineLDAVB:
 			c += d.num_words
 		return c
 
-	# Predictive distribution
-	def predictive(self, W):
-		D = len(W)
-		phi, var_gamma = self._infer(W, D)
-		sum_log_prob = 0
-		num_new_words = 0
-		W_obs = []
-		W_he = []
-		# Split document to observed and held-out
-		for d in range(D):
-			W_d = W[d].to_vector()
-			N_d = W[d].num_words
-			i = 0
-			count_obs = 0
-			while i < W[d].num_terms and 1. * count_obs / N_d < self.predictive_ratio:
-				count_obs += W[d].counts[i]
-				i += 1
-			W_d_obs = Document(i, count_obs, W[d].terms[: i], W[d].counts[: i])
-			W_d_he = Document(W[d].num_terms - i, N_d - count_obs, W[d].terms[i:], \
-					W[d].counts[i:])
-			W_obs.append(W_d_obs)
-			W_he.append(W_d_he)
-		# Infer
-		phi, var_gamma = self._infer(W_obs, len(W_obs))
-		# Per-word log probability
-		for d in range(len(W_he)):
-			for i in range(W_he[d].num_terms):
-				sum_log_prob += np.log(1. * var_gamma[d].dot(self.beta[:, W_he[d].terms[i]]) /\
-						np.sum(var_gamma[d]))
-				num_new_words += W_he[d].counts[i]
-		result = 1. * sum_log_prob / num_new_words
-		return result
+	

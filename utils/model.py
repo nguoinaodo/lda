@@ -21,9 +21,9 @@ def load_model(LDA_VB, filename):
 	lda.set_params(beta=beta)
 	return lda
 
-def save_stochatic_model(model, filename):
+def save_online_model(model, filename):
 	alpha, beta, tau0, kappa, eta = model.get_params()
 	with open(filename, 'w') as f:
 		writer = csv.writer(f, delimiter=',')
-		writer.writerow([alpha])
+		writer.writerow([alpha, tau0, kappa])
 		writer.writerows(beta)
