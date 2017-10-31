@@ -18,7 +18,7 @@ class OnlineLDAVB:
 
 	# Set parameters	
 	def set_params(self, alpha=False, beta=False, tau0=False, kappa=False, eta=False, \
-				K=False, V=False, log=None, predictive_ratio=None,
+				K=False, V=False, log=None, plotfile=None, predictive_ratio=None,
 				var_converged=None, var_max_iter=None, em_max_iter=None, em_converged=None,
 				batch_size=None):
 		# Dirichlet parameters of topics distribution 
@@ -45,6 +45,9 @@ class OnlineLDAVB:
 		# Log result
 		if log:
 			self.log = log
+		# Plot
+		if plotfile:
+			self.plotfile = plotfile
 		# Predictive observed - held-out ratio
 		if predictive_ratio:
 			self.predictive_ratio = predictive_ratio
@@ -118,10 +121,6 @@ class OnlineLDAVB:
 	# EM with N epochs
 	def _em(self, W, W_test=None):
 		D = len(W)
-		# Test
-		if W_test != None:
-			W_obs = W_test[0]
-			W_he = W_test[1]
 		with open(self.log, 'a') as log:
 			print '----------------------------------'
 			print 'Number of documents: %d' % D
@@ -159,8 +158,11 @@ class OnlineLDAVB:
 				print 'Minibatch run time: %f' % mb_run_time
 				# Predictive after each minibatch
 				if W_test != None:
-					pred = self.predictive(W_obs, W_he)
-					predictives.append(pred)
+					preds = []
+					for pair in W_test:
+						pred = self.predictive(pair[0], pair[1])
+						preds.append(pred)
+					predictives.append(np.average(preds))
 
 			# Time
 			run_time = time.time() - start
@@ -285,67 +287,5 @@ class OnlineLDAVB:
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		plt.show()
-
-
-
-
-
-
-
-
-
-	# Document lower bound
-	def _doc_lower_bound(self, W_d, phi_d, gamma_d, beta):
-		# Calculate
-		sub_digamma = digamma(gamma_d) - digamma(np.sum(gamma_d))
-		# Eq log(P(theta|alpha))
-		A1 = gammaln(self.K * self.alpha) - self.K * gammaln(self.alpha)
-		A = A1 + np.sum((self.alpha - 1) * sub_digamma) # A = 0
-		# SUMn Eq log(P(Zn|theta))
-		B = np.sum(phi_d.dot(sub_digamma))
-		# SUMn Eq log(P(Wn|Zn, beta))
-		C1 = np.nan_to_num(np.log((beta[:, W_d]).T)) # NxK
-		C = np.sum(phi_d * C1)
-		# Eq log(q(theta|gamma))
-		D1 = (gamma_d - 1).dot(sub_digamma) # 1xK . Kx1 = 1
-		D2 = gammaln(np.sum(gamma_d)) - np.sum(gammaln(gamma_d))
-		D = D1 + D2
-		# SUMn Eq log(q(Zn))
-		E = np.sum(phi_d * np.nan_to_num(np.log(phi_d)))
-		result = A + B + C - D - E
-		# print 'Document lower bound time: %f' % (time.time() - start) 
-		return result	
-
-	
-
-	# Calculate lower bound
-	def _lower_bound(self, W, D, phi, var_gamma):
-		print 'Compute lower bound'
-		result = 0
-		t0 = time.time()
-		for d in range(D):
-			result += self._doc_lower_bound(W, d, phi[d], var_gamma[d])
-		print "Time: %f" % (time.time() - t0)
-		return result
-
-	
-
-	# Perplexity
-	def perplexity(self, W):
-		D = len(W) # number of documents
-		phi, var_gamma = self._infer(W, D)
-		# Lower bound likelihood
-		lower_bound = self._lower_bound(W, D, phi, var_gamma)
-		num_words = self._count_words(W)
-		# Perplexity
-		perplexity = np.exp(-lower_bound / num_words)
-		return perplexity
-
-	# Count tokens in documents	
-	def _count_words(self, W):
-		c = 0
-		for d in W:
-			c += d.num_words
-		return c
-
-	
+		if self.plotfile:
+			plt.savefig(self.plotfile)
