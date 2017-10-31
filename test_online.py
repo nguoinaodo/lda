@@ -16,7 +16,7 @@ for size in [100]:
 	for k in [100]:
 		for alpha in [.01, .1]:
 			for kappa in [.1, .5,.6,.7,.8,.9]:
-				for tau0 in [0.9]
+				for tau0 in [0.9]:
 					# Model
 					lda = OnlineLDAVB()
 					lda.set_params(alpha=alpha, K=k, V=V, kappa=kappa, tau0=tau0, eta=.7,\
