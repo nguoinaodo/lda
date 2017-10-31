@@ -11,7 +11,7 @@ class OnlineLDAVB:
 		self.var_converged = 1e-6
 		self.predictive_ratio = .8
 		self.var_max_iter = 50
-		self.em_max_iter = 5
+		self.em_max_iter = 2
 		self.em_converged = 1e-4
 		self.batch_size = 100
 
@@ -132,47 +132,41 @@ class OnlineLDAVB:
 	def _estimate(self, W, batch_ids):
 		# Init sufficiency statistic for minibatch
 		suff_stat = np.zeros(self.beta.shape)
-		# Init beta
-		beta = self._init_beta()
-		batch_old_lower_bound = -1e12
-		for it in range(self.em_max_iter):
-			batch_lower_bound = 0
-			# E step
-			# For document in batch
-			for d in batch_ids:
-				# Document flatten
-				W_d = W[d].to_vector()	
-				# Init variational parameters
-				phi_d = np.ones((W[d].num_words, self.K)) / self.K
-				gamma_d = (self.alpha + 1. * W[d].num_words / self.K) * np.ones(self.K)
-				# Init doc lower bound
-				old_lower_bound = -1e12
-				lower_bound = 0
-				# Coordinate ascent
-				for i in range(self.var_max_iter):
-					# Update phi
-					phi_d = normalize(beta.T[W_d, :] * np.exp(digamma(gamma_d)), axis=1)
-					# Update gamma
-					gamma_d = self.alpha + np.sum(phi_d, axis=0)
-					# Document lower bound
-					lower_bound = self._doc_lower_bound(W_d, phi_d, gamma_d, beta)
-					# Check convergence
-					converged = np.fabs((old_lower_bound - lower_bound) / old_lower_bound)
-					if converged < self.var_converged:
-						break
-					old_lower_bound = lower_bound
-				batch_lower_bound += lower_bound
-				# Update sufficiency statistic
-				for j in range(W[d].num_words):
-					for k in range(self.K):
-						suff_stat[k][j] += phi_d[j][k]
-			# M step
-			beta = self._maximize(suff_stat)
-			# Check convergence
-			converged = np.fabs((batch_old_lower_bound - batch_lower_bound) / batch_old_lower_bound)
-			if converged < self.em_converged:
-				break
-			batch_old_lower_bound = batch_lower_bound
+		# For document in batch
+		for d in batch_ids:
+			# Document flatten
+			W_d = W[d].to_vector()	
+			# Init variational parameters
+			phi_d = np.ones((W[d].num_words, self.K)) / self.K
+			gamma_d = (self.alpha + 1. * W[d].num_words / self.K) * np.ones(self.K)
+			# Init doc lower bound
+
+			# old_lower_bound = -1e12
+			# lower_bound = 0
+
+			# Coordinate ascent
+			old_gamma_d = gamma_d
+			for i in range(self.var_max_iter):
+				# Update phi
+				phi_d = normalize(self.beta.T[W_d, :] * np.exp(digamma(gamma_d)), axis=1)
+				# Update gamma
+				gamma_d = self.alpha + np.sum(phi_d, axis=0)
+
+				# Document lower bound
+				# lower_bound = self._doc_lower_bound(W_d, phi_d, gamma_d, beta)
+
+				# Check convergence
+				meanchange = np.mean(np.fabs(old_gamma_d - gamma_d))
+				if meanchange < self.var_converged:
+					break
+				old_gamma_d = gamma_d
+
+			# batch_lower_bound += lower_bound
+			
+			# Update sufficiency statistic
+			for j in range(W[d].num_words):
+				for k in range(self.K):
+					suff_stat[k][j] += phi_d[j][k]
 		return suff_stat
 
 	# Update global parameter
